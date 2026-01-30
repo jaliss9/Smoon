@@ -76,17 +76,25 @@ body {
 /* Animation de flottement 3D pour la lune */
 @keyframes float3d {
   0%, 100% { 
-    transform: perspective(500px) rotateX(5deg) rotateY(-5deg) translateY(0); 
+    transform: translateY(0); 
   }
   50% { 
-    transform: perspective(500px) rotateX(5deg) rotateY(-5deg) translateY(-5px); 
+    transform: translateY(-5px); 
   }
 }
 
 .moon-3d {
   transform: perspective(500px) rotateX(5deg) rotateY(-5deg);
   transform-style: preserve-3d;
-  animation: float3d 6s ease-in-out infinite;
+  animation: float3d 6s ease-in-out infinite, rotateMoon 120s linear infinite;
+}
+
+/* Fallback pour iOS qui ne supporte pas bien les animations complexes */
+@supports not (transform-style: preserve-3d) {
+  .moon-3d {
+    transform: none;
+    animation: rotateMoon 120s linear infinite;
+  }
 }
 
 /* Fond étoilé subtil */

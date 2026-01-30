@@ -1,5 +1,10 @@
 import * as SunCalc from "suncalc";
 
+// Vérification que SunCalc est disponible
+if (typeof SunCalc === 'undefined') {
+  console.error('SunCalc is not available');
+}
+
 export interface MoonData {
   phase: string; // nom de la phase
   phaseValue: number; // valeur de phase 0-1
@@ -80,43 +85,67 @@ export function formatTime(date: Date | null): string {
  * Calcule toutes les données lunaires pour une position et une date données
  */
 export function calculateMoonData(lat: number, lon: number, date: Date = new Date()): MoonData {
-  // Obtenir l'illumination de la lune
-  const illumination = SunCalc.getMoonIllumination(date);
-  const phase = illumination.phase;
-  const fraction = illumination.fraction;
+  try {
+    // Valider les paramètres
+    if (typeof lat !== 'number' || typeof lon !== 'number' || isNaN(lat) || isNaN(lon)) {
+      console.warn('Invalid coordinates, using Paris fallback');
+      lat = 48.8566;
+      lon = 2.3522;
+    }
 
-  // Obtenir les heures de lever et coucher de la lune
-  const moonTimes = SunCalc.getMoonTimes(date, lat, lon);
-  const moonrise = moonTimes.rise || null;
-  const moonset = moonTimes.set || null;
+    // Obtenir l'illumination de la lune
+    const illumination = SunCalc.getMoonIllumination(date);
+    const phase = illumination?.phase ?? 0;
+    const fraction = illumination?.fraction ?? 0;
 
-  // Obtenir la position de la lune (pour distance et altitude)
-  const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
-  // distance est déjà en kilomètres dans SunCalc
-  const distance = moonPosition.distance;
-  const altitude = (moonPosition.altitude * 180) / Math.PI; // conversion en degrés
+    // Obtenir les heures de lever et coucher de la lune
+    const moonTimes = SunCalc.getMoonTimes(date, lat, lon);
+    const moonrise = moonTimes?.rise || null;
+    const moonset = moonTimes?.set || null;
 
-  // Calculer les jours avant pleine lune
-  const daysUntilFullMoon = getDaysUntilFullMoon(phase);
+    // Obtenir la position de la lune (pour distance et altitude)
+    const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
+    // distance est déjà en kilomètres dans SunCalc
+    const distance = moonPosition?.distance ?? 384400; // distance moyenne par défaut
+    const altitude = moonPosition?.altitude ? (moonPosition.altitude * 180) / Math.PI : 0; // conversion en degrés
 
-  // Calculer la durée de visibilité
-  const visibilityDuration = getVisibilityDuration(moonrise, moonset);
+    // Calculer les jours avant pleine lune
+    const daysUntilFullMoon = getDaysUntilFullMoon(phase);
 
-  // Calculer la rayonnance de Smina (illumination + 5%)
-  const sminaValue = Math.min(100, (fraction * 100) + 5);
+    // Calculer la durée de visibilité
+    const visibilityDuration = getVisibilityDuration(moonrise, moonset);
 
-  return {
-    phase: getPhaseName(phase),
-    phaseValue: phase,
-    illumination: Math.round(fraction * 100),
-    moonrise,
-    moonset,
-    daysUntilFullMoon,
-    visibilityDuration: visibilityDuration ? Math.round(visibilityDuration * 10) / 10 : null,
-    distance: Math.round(distance),
-    sminaValue: Math.round(sminaValue * 10) / 10,
-    altitude,
-  };
+    // Calculer la rayonnance de Smina (illumination + 5%)
+    const sminaValue = Math.min(100, (fraction * 100) + 5);
+
+    return {
+      phase: getPhaseName(phase),
+      phaseValue: phase,
+      illumination: Math.round(fraction * 100),
+      moonrise,
+      moonset,
+      daysUntilFullMoon,
+      visibilityDuration: visibilityDuration ? Math.round(visibilityDuration * 10) / 10 : null,
+      distance: Math.round(distance),
+      sminaValue: Math.round(sminaValue * 10) / 10,
+      altitude,
+    };
+  } catch (error) {
+    console.error('Error in calculateMoonData:', error);
+    // Retourner des valeurs par défaut en cas d'erreur
+    return {
+      phase: 'Nouvelle lune',
+      phaseValue: 0,
+      illumination: 0,
+      moonrise: null,
+      moonset: null,
+      daysUntilFullMoon: 15,
+      visibilityDuration: null,
+      distance: 384400,
+      sminaValue: 5,
+      altitude: 0,
+    };
+  }
 }
 
 /**

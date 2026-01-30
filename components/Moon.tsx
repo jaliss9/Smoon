@@ -27,7 +27,7 @@ export default function Moon({ phase, illumination }: MoonProps) {
       >
         {/* Lune réaliste avec rotation et effet 3D */}
         <div 
-          className="moon-surface moon-3d animate-moon-rotate"
+          className="moon-surface animate-moon-rotate"
           style={{
             width: '220px',
             height: '220px',
@@ -41,7 +41,8 @@ export default function Moon({ phase, illumination }: MoonProps) {
               0 0 80px rgba(200,210,230,0.25),
               0 0 120px rgba(200,210,230,0.1)
             `,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            transform: 'perspective(500px) rotateX(5deg) rotateY(-5deg)'
           }}
         >
           {/* Cratère 1 - grand (réduit de 40px à 32px) */}
