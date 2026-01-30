@@ -68,8 +68,8 @@ export async function checkAndNotifyMoonVisibility(altitude: number): Promise<vo
 
   // Envoyer la notification
   try {
-    const notification = new Notification("La lune est visible", {
-      body: "La lune est maintenant au-dessus de l'horizon.",
+    const notification = new Notification("Smoon", {
+      body: "Smina, la lune est visible ce soir 🌙",
       icon: "/icon-192.png",
       badge: "/icon-192.png",
       tag: "moon-visible", // Évite les doublons si plusieurs notifications sont en attente
@@ -104,7 +104,7 @@ export function checkAndNotifyHighIllumination(illumination: number): void {
   if (Notification.permission === 'granted') {
     try {
       new Notification('Smoon', {
-        body: `La lune brille à ${Math.round(illumination)}% cette nuit ✨`,
+        body: `Smina, la lune brille à ${Math.round(illumination)}% cette nuit ✨`,
         icon: '/icon-192.png'
       });
       localStorage.setItem('smoon_high_illumination_notif', now.toString());

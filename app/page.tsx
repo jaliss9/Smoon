@@ -226,6 +226,24 @@ export default function Home() {
         />
 
         <SminaCard value={moonData.sminaValue} />
+
+        {/* Carte de rappel */}
+        <div style={{
+          marginTop: '20px',
+          padding: '16px',
+          borderRadius: '16px',
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.05)',
+          textAlign: 'center'
+        }}>
+          <p style={{
+            fontSize: '13px',
+            color: 'rgba(255,255,255,0.5)',
+            margin: 0
+          }}>
+            Ouvre-moi ce soir pour voir la lune, Smina 🌙
+          </p>
+        </div>
       </div>
     </main>
   );
