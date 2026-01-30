@@ -94,6 +94,12 @@ export function formatTime(date: Date | null): string {
  */
 export function calculateMoonData(lat: number, lon: number, date: Date = new Date()): MoonData {
   try {
+    // Vérifier que SunCalc est disponible
+    if (typeof SunCalc === 'undefined' || !SunCalc.getMoonIllumination) {
+      console.error('SunCalc is not available');
+      throw new Error('SunCalc not available');
+    }
+
     // Valider les paramètres
     if (typeof lat !== 'number' || typeof lon !== 'number' || isNaN(lat) || isNaN(lon)) {
       console.warn('Invalid coordinates, using London fallback');
@@ -101,21 +107,50 @@ export function calculateMoonData(lat: number, lon: number, date: Date = new Dat
       lon = -0.1278;
     }
 
+    // Valider la date
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      date = new Date();
+    }
+
     // Obtenir l'illumination de la lune
-    const illumination = SunCalc.getMoonIllumination(date);
-    const phase = illumination?.phase ?? 0;
-    const fraction = illumination?.fraction ?? 0;
+    let illumination: any;
+    try {
+      illumination = SunCalc.getMoonIllumination(date);
+    } catch (e) {
+      console.error('Error getting moon illumination:', e);
+      throw e;
+    }
+    
+    const phase = typeof illumination?.phase === 'number' && !isNaN(illumination.phase) ? illumination.phase : 0;
+    const fraction = typeof illumination?.fraction === 'number' && !isNaN(illumination.fraction) ? illumination.fraction : 0;
 
     // Obtenir les heures de lever et coucher de la lune
-    const moonTimes = SunCalc.getMoonTimes(date, lat, lon);
-    const moonrise = moonTimes?.rise || null;
-    const moonset = moonTimes?.set || null;
+    let moonTimes: any;
+    try {
+      moonTimes = SunCalc.getMoonTimes(date, lat, lon);
+    } catch (e) {
+      console.error('Error getting moon times:', e);
+      moonTimes = {};
+    }
+    const moonrise = moonTimes?.rise instanceof Date && !isNaN(moonTimes.rise.getTime()) ? moonTimes.rise : null;
+    const moonset = moonTimes?.set instanceof Date && !isNaN(moonTimes.set.getTime()) ? moonTimes.set : null;
 
     // Obtenir la position de la lune (pour distance et altitude)
-    const moonPosition = SunCalc.getMoonPosition(date, lat, lon);
+    let moonPosition: any;
+    try {
+      moonPosition = SunCalc.getMoonPosition(date, lat, lon);
+    } catch (e) {
+      console.error('Error getting moon position:', e);
+      moonPosition = {};
+    }
+    
     // distance est déjà en kilomètres dans SunCalc
-    const distance = moonPosition?.distance ?? 384400; // distance moyenne par défaut
-    const altitude = moonPosition?.altitude ? (moonPosition.altitude * 180) / Math.PI : 0; // conversion en degrés
+    const distance = typeof moonPosition?.distance === 'number' && !isNaN(moonPosition.distance) 
+      ? moonPosition.distance 
+      : 384400; // distance moyenne par défaut
+    const altitude = typeof moonPosition?.altitude === 'number' && !isNaN(moonPosition.altitude)
+      ? (moonPosition.altitude * 180) / Math.PI 
+      : 0; // conversion en degrés
 
     // Calculer les jours avant pleine lune
     const daysUntilFullMoon = getDaysUntilFullMoon(phase);
@@ -124,19 +159,21 @@ export function calculateMoonData(lat: number, lon: number, date: Date = new Dat
     const visibilityDuration = getVisibilityDuration(moonrise, moonset);
 
     // Calculer la rayonnance de Smina (illumination + 5%)
-    const sminaValue = Math.min(100, (fraction * 100) + 5);
+    const sminaValue = Math.min(100, Math.max(0, (fraction * 100) + 5));
 
     return {
       phase: getPhaseName(phase),
-      phaseValue: phase,
-      illumination: Math.round(fraction * 100),
+      phaseValue: Math.max(0, Math.min(1, phase)),
+      illumination: Math.max(0, Math.min(100, Math.round(fraction * 100))),
       moonrise,
       moonset,
-      daysUntilFullMoon,
-      visibilityDuration: visibilityDuration ? Math.round(visibilityDuration * 10) / 10 : null,
-      distance: Math.round(distance),
-      sminaValue: Math.round(sminaValue * 10) / 10,
-      altitude,
+      daysUntilFullMoon: Math.max(0, Math.round(daysUntilFullMoon)),
+      visibilityDuration: visibilityDuration !== null && !isNaN(visibilityDuration) 
+        ? Math.round(visibilityDuration * 10) / 10 
+        : null,
+      distance: Math.max(0, Math.round(distance)),
+      sminaValue: Math.max(0, Math.min(100, Math.round(sminaValue * 10) / 10)),
+      altitude: typeof altitude === 'number' && !isNaN(altitude) ? altitude : 0,
     };
   } catch (error) {
     console.error('Error in calculateMoonData:', error);

@@ -9,6 +9,11 @@ import StatCard from "@/components/StatCard";
 import StatCardWide from "@/components/StatCardWide";
 import SminaCard from "@/components/SminaCard";
 
+// Protection des imports
+if (typeof window === 'undefined') {
+  // Server-side, pas de problème
+}
+
 interface Location {
   lat: number;
   lon: number;
@@ -60,7 +65,13 @@ export default function Home() {
               setLocation(parsed);
               const data = calculateMoonData(parsed.lat, parsed.lon);
               setMoonData(data);
-              checkAndNotifyHighIllumination(data.illumination);
+              try {
+                if (typeof checkAndNotifyHighIllumination === 'function') {
+                  checkAndNotifyHighIllumination(data.illumination);
+                }
+              } catch (e) {
+                console.warn("Erreur notification:", e);
+              }
             }
           } catch (e) {
             console.warn("Erreur lors du chargement de la position sauvegardée:", e);
@@ -79,7 +90,9 @@ export default function Home() {
             const { latitude, longitude } = position.coords;
             
             // Reverse geocoding pour obtenir le nom de la ville
-            let locationName = `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+            const safeLat = typeof latitude === 'number' && !isNaN(latitude) ? latitude : 51.5074;
+            const safeLon = typeof longitude === 'number' && !isNaN(longitude) ? longitude : -0.1278;
+            let locationName = `${safeLat.toFixed(2)}, ${safeLon.toFixed(2)}`;
             try {
               const response = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
@@ -103,8 +116,8 @@ export default function Home() {
             }
             
             const newLocation: Location = {
-              lat: latitude,
-              lon: longitude,
+              lat: safeLat,
+              lon: safeLon,
               name: locationName,
             };
             setLocation(newLocation);
@@ -119,7 +132,13 @@ export default function Home() {
             
             const data = calculateMoonData(newLocation.lat, newLocation.lon);
             setMoonData(data);
-            checkAndNotifyHighIllumination(data.illumination);
+            try {
+              if (typeof checkAndNotifyHighIllumination === 'function') {
+                checkAndNotifyHighIllumination(data.illumination);
+              }
+            } catch (e) {
+              console.warn("Erreur notification:", e);
+            }
           } catch (e) {
             console.error("Erreur lors du traitement de la géolocalisation:", e);
           }
@@ -139,7 +158,13 @@ export default function Home() {
             // Calculer les données avec le fallback
             const data = calculateMoonData(fallbackCoords.lat, fallbackCoords.lon);
             setMoonData(data);
-            checkAndNotifyHighIllumination(data.illumination);
+            try {
+              if (typeof checkAndNotifyHighIllumination === 'function') {
+                checkAndNotifyHighIllumination(data.illumination);
+              }
+            } catch (e) {
+              console.warn("Erreur notification:", e);
+            }
           } catch (e) {
             console.error("Erreur lors du fallback:", e);
           }
@@ -158,11 +183,24 @@ export default function Home() {
         const newData = calculateMoonData(location.lat, location.lon);
         setMoonData(newData);
         
-        // Vérifier et envoyer notifications si nécessaire
-        checkAndNotifyMoonVisibility(newData.altitude).catch((e) => {
-          console.warn("Erreur notification visibilité:", e);
-        });
-        checkAndNotifyHighIllumination(newData.illumination);
+        // Vérifier et envoyer notifications si nécessaire (sans bloquer)
+        try {
+          if (typeof checkAndNotifyMoonVisibility === 'function') {
+            checkAndNotifyMoonVisibility(newData.altitude).catch((e) => {
+              console.warn("Erreur notification visibilité:", e);
+            });
+          }
+        } catch (e) {
+          console.warn("Erreur lors de l'appel notification visibilité:", e);
+        }
+        
+        try {
+          if (typeof checkAndNotifyHighIllumination === 'function') {
+            checkAndNotifyHighIllumination(newData.illumination);
+          }
+        } catch (e) {
+          console.warn("Erreur lors de l'appel notification illumination:", e);
+        }
       } catch (e) {
         console.error("Erreur lors du rafraîchissement:", e);
       }
@@ -187,18 +225,29 @@ export default function Home() {
     );
   }
 
-  // Protection contre les erreurs de données - utiliser useEffect pour éviter les re-renders infinis
+  // Protection contre les erreurs de données - vérification unique au montage
   useEffect(() => {
-    if (!moonData || typeof moonData.illumination !== 'number' || isNaN(moonData.illumination)) {
-      console.warn('Invalid moonData, reinitializing...');
-      try {
-        const data = calculateMoonData(location.lat, location.lon);
-        setMoonData(data);
-      } catch (e) {
-        console.error('Failed to reinitialize moonData:', e);
+    if (!isMounted) return;
+    
+    // Vérifier une seule fois après le montage
+    const checkData = () => {
+      if (!moonData || typeof moonData.illumination !== 'number' || isNaN(moonData.illumination)) {
+        console.warn('Invalid moonData detected, reinitializing...');
+        try {
+          const data = calculateMoonData(location.lat, location.lon);
+          if (data && typeof data.illumination === 'number' && !isNaN(data.illumination)) {
+            setMoonData(data);
+          }
+        } catch (e) {
+          console.error('Failed to reinitialize moonData:', e);
+        }
       }
-    }
-  }, [moonData, location]);
+    };
+    
+    // Délai pour éviter les conflits avec les autres useEffect
+    const timeout = setTimeout(checkData, 100);
+    return () => clearTimeout(timeout);
+  }, [isMounted]);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] px-5 max-w-[430px] mx-auto" style={{ minHeight: '100dvh', paddingTop: '60px', paddingBottom: '40px', position: 'relative', zIndex: 1 }}>
@@ -297,7 +346,17 @@ export default function Home() {
         <StatCardWide 
           icon="distance" 
           label="DISTANCE TERRE-LUNE" 
-          value={`${(moonData?.distance ?? 384400).toLocaleString("fr-FR")} km`} 
+          value={(() => {
+            try {
+              const dist = moonData?.distance ?? 384400;
+              if (typeof dist === 'number' && !isNaN(dist)) {
+                return `${dist.toLocaleString("fr-FR")} km`;
+              }
+              return "384 400 km";
+            } catch (e) {
+              return "384 400 km";
+            }
+          })()} 
         />
 
         <SminaCard value={moonData?.sminaValue ?? 5} />

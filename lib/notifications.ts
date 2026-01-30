@@ -92,24 +92,45 @@ export async function checkAndNotifyMoonVisibility(altitude: number): Promise<vo
  * Cooldown de 24h pour éviter le spam
  */
 export function checkAndNotifyHighIllumination(illumination: number): void {
-  if (illumination < 85) return;
-  
-  // Clé différente pour ce type de notification
-  const lastNotif = localStorage.getItem('smoon_high_illumination_notif');
-  const now = Date.now();
-  const COOLDOWN = 24 * 60 * 60 * 1000; // 24h entre chaque notif (une fois par jour max)
-  
-  if (lastNotif && now - parseInt(lastNotif) < COOLDOWN) return;
-  
-  if (Notification.permission === 'granted') {
+  try {
+    if (typeof illumination !== 'number' || isNaN(illumination) || illumination < 85) return;
+    
+    // Vérifier que localStorage est disponible
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    
+    // Clé différente pour ce type de notification
+    let lastNotif: string | null = null;
     try {
-      new Notification('Smoon', {
-        body: `Smina, la lune brille à ${Math.round(illumination)}% cette nuit ✨`,
-        icon: '/icon-192.png'
-      });
-      localStorage.setItem('smoon_high_illumination_notif', now.toString());
-    } catch (error) {
-      console.error("Erreur lors de l'envoi de la notification d'illumination:", error);
+      lastNotif = localStorage.getItem('smoon_high_illumination_notif');
+    } catch (e) {
+      console.warn("Erreur localStorage getItem:", e);
+      return;
     }
+    
+    const now = Date.now();
+    const COOLDOWN = 24 * 60 * 60 * 1000; // 24h entre chaque notif (une fois par jour max)
+    
+    if (lastNotif) {
+      const lastTime = parseInt(lastNotif, 10);
+      if (!isNaN(lastTime) && now - lastTime < COOLDOWN) return;
+    }
+    
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      try {
+        new Notification('Smoon', {
+          body: `Smina, la lune brille à ${Math.round(illumination)}% cette nuit ✨`,
+          icon: '/icon-192.png'
+        });
+        try {
+          localStorage.setItem('smoon_high_illumination_notif', now.toString());
+        } catch (e) {
+          console.warn("Erreur localStorage setItem:", e);
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'envoi de la notification d'illumination:", error);
+      }
+    }
+  } catch (error) {
+    console.error("Erreur dans checkAndNotifyHighIllumination:", error);
   }
 }
