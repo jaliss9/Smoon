@@ -36,15 +36,38 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Ignore les requêtes non-http (chrome-extension, data:, blob:, etc.)
-  const url = new URL(event.request.url);
+  // Ignore complètement les requêtes non-http (chrome-extension, data:, blob:, etc.)
+  const requestUrl = event.request.url;
+  
+  // Vérifications strictes avant même de créer un URL
+  if (!requestUrl || 
+      requestUrl.startsWith('chrome-extension:') ||
+      requestUrl.startsWith('chrome:') ||
+      requestUrl.startsWith('moz-extension:') ||
+      requestUrl.startsWith('safari-extension:') ||
+      requestUrl.startsWith('data:') ||
+      requestUrl.startsWith('blob:') ||
+      requestUrl.startsWith('file:')) {
+    return; // Ignorer complètement ces requêtes
+  }
+  
+  // Vérifier le protocole avec URL seulement si c'est une URL valide
+  let url;
+  try {
+    url = new URL(requestUrl);
+  } catch (e) {
+    // URL invalide, ignorer
+    return;
+  }
+  
+  // Vérifier que c'est bien http ou https
   if (!url.protocol.startsWith('http')) {
     return;
   }
   
   // Ignore les requêtes vers des domaines externes (sauf si nécessaire)
   // Sur iOS, on évite de cacher les requêtes externes qui peuvent causer des problèmes
-  if (url.origin !== self.location.origin && !event.request.url.includes('nominatim.openstreetmap.org')) {
+  if (url.origin !== self.location.origin && !requestUrl.includes('nominatim.openstreetmap.org')) {
     return fetch(event.request);
   }
   
@@ -64,6 +87,18 @@ self.addEventListener('fetch', (event) => {
               return response;
             }
             
+            // Vérifier une dernière fois que la requête est valide avant de la mettre en cache
+            const requestUrl = event.request.url;
+            if (requestUrl.startsWith('chrome-extension:') ||
+                requestUrl.startsWith('chrome:') ||
+                requestUrl.startsWith('moz-extension:') ||
+                requestUrl.startsWith('safari-extension:') ||
+                requestUrl.startsWith('data:') ||
+                requestUrl.startsWith('blob:') ||
+                requestUrl.startsWith('file:')) {
+              return response; // Retourner sans mettre en cache
+            }
+            
             // Cloner la réponse avant de la mettre en cache
             const responseToCache = response.clone();
             
@@ -71,9 +106,20 @@ self.addEventListener('fetch', (event) => {
             caches.open(CACHE_NAME)
               .then((cache) => {
                 try {
-                  cache.put(event.request, responseToCache);
+                  // Vérification finale avant put
+                  if (event.request.url && !event.request.url.startsWith('chrome-extension:')) {
+                    cache.put(event.request, responseToCache).catch((err) => {
+                      // Ignorer silencieusement les erreurs de cache
+                      if (!err.message.includes('chrome-extension')) {
+                        console.warn('Cache put failed:', err);
+                      }
+                    });
+                  }
                 } catch (err) {
-                  console.warn('Cache put failed:', err);
+                  // Ignorer silencieusement les erreurs
+                  if (!err.message || !err.message.includes('chrome-extension')) {
+                    console.warn('Cache put error:', err);
+                  }
                 }
               })
               .catch((err) => {

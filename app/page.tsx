@@ -29,9 +29,31 @@ const LONDON_FALLBACK: Location = {
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [location, setLocation] = useState<Location>(LONDON_FALLBACK);
-  const [moonData, setMoonData] = useState(() => {
+  
+  // Initialisation sécurisée de moonData
+  const [moonData, setMoonData] = useState<ReturnType<typeof calculateMoonData>>(() => {
     try {
-      return calculateMoonData(LONDON_FALLBACK.lat, LONDON_FALLBACK.lon);
+      if (typeof window === 'undefined') {
+        // Server-side, retourner des valeurs par défaut
+        return {
+          phase: 'Nouvelle lune',
+          phaseValue: 0,
+          illumination: 0,
+          moonrise: null,
+          moonset: null,
+          daysUntilFullMoon: 15,
+          visibilityDuration: null,
+          distance: 384400,
+          sminaValue: 5,
+          altitude: 0,
+        };
+      }
+      const data = calculateMoonData(LONDON_FALLBACK.lat, LONDON_FALLBACK.lon);
+      // Vérifier que les données sont valides
+      if (data && typeof data.illumination === 'number' && !isNaN(data.illumination)) {
+        return data;
+      }
+      throw new Error('Invalid moonData returned');
     } catch (e) {
       console.error('Error initializing moonData:', e);
       return {
@@ -248,6 +270,17 @@ export default function Home() {
     const timeout = setTimeout(checkData, 100);
     return () => clearTimeout(timeout);
   }, [isMounted]);
+
+  // Protection finale avant le rendu
+  if (!moonData) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] flex items-center justify-center" style={{ minHeight: '100dvh' }}>
+        <div className="text-white text-center">
+          <p>Chargement...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] px-5 max-w-[430px] mx-auto" style={{ minHeight: '100dvh', paddingTop: '60px', paddingBottom: '40px', position: 'relative', zIndex: 1 }}>

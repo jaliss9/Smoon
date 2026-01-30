@@ -23,6 +23,10 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: any) {
     console.error("ErrorBoundary caught an error:", error, errorInfo);
+    // Ne pas logger les erreurs de service worker ou chrome-extension
+    if (error.message && error.message.includes('chrome-extension')) {
+      return;
+    }
   }
 
   render() {
