@@ -6,6 +6,16 @@ interface MoonProps {
 }
 
 export default function Moon({ phase, illumination }: MoonProps) {
+  // Protection contre les valeurs invalides
+  const safePhase = typeof phase === 'number' && !isNaN(phase) ? phase : 0;
+  const safeIllumination = typeof illumination === 'number' && !isNaN(illumination) ? Math.max(0, Math.min(100, illumination)) : 0;
+  
+  // Calcul sécurisé pour l'ombre de phase
+  const shadowCoverage = 100 - safeIllumination;
+  const shadowStart = Math.max(0, Math.min(100, 100 - shadowCoverage - 20));
+  const shadowMid1 = Math.max(0, Math.min(100, 100 - shadowCoverage - 10));
+  const shadowEnd = Math.max(0, Math.min(100, 100 - shadowCoverage));
+
   return (
     <div className="relative flex flex-col items-center pt-8 pb-[50px]">
       {/* Halo ambient */}
@@ -25,7 +35,7 @@ export default function Moon({ phase, illumination }: MoonProps) {
           boxShadow: 'inset 0 0 30px rgba(200,210,230,0.08)',
         }}
       >
-        {/* Lune réaliste avec rotation et effet 3D */}
+        {/* Lune réaliste avec rotation */}
         <div 
           className="moon-surface animate-moon-rotate"
           style={{
@@ -41,8 +51,7 @@ export default function Moon({ phase, illumination }: MoonProps) {
               0 0 80px rgba(200,210,230,0.25),
               0 0 120px rgba(200,210,230,0.1)
             `,
-            overflow: 'hidden',
-            transform: 'perspective(500px) rotateX(5deg) rotateY(-5deg)'
+            overflow: 'hidden'
           }}
         >
           {/* Cratère 1 - grand (réduit de 40px à 32px) */}
@@ -112,9 +121,9 @@ export default function Moon({ phase, illumination }: MoonProps) {
             borderRadius: '50%',
             background: `linear-gradient(90deg, 
               rgba(8,8,15,0.95) 0%, 
-              rgba(8,8,15,0.8) ${Math.max(0, 100 - illumination - 20)}%, 
-              rgba(8,8,15,0.4) ${Math.max(0, 100 - illumination - 10)}%,
-              transparent ${100 - illumination}%
+              rgba(8,8,15,0.8) ${shadowStart}%, 
+              rgba(8,8,15,0.4) ${shadowMid1}%,
+              transparent ${shadowEnd}%
             )`,
             pointerEvents: 'none'
           }} />

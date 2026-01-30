@@ -75,10 +75,18 @@ export function getVisibilityDuration(moonrise: Date | null, moonset: Date | nul
  */
 export function formatTime(date: Date | null): string {
   if (!date) return "—";
-  return date.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  try {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      return "—";
+    }
+    return date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (e) {
+    console.warn('Error formatting time:', e);
+    return "—";
+  }
 }
 
 /**
@@ -88,9 +96,9 @@ export function calculateMoonData(lat: number, lon: number, date: Date = new Dat
   try {
     // Valider les paramètres
     if (typeof lat !== 'number' || typeof lon !== 'number' || isNaN(lat) || isNaN(lon)) {
-      console.warn('Invalid coordinates, using Paris fallback');
-      lat = 48.8566;
-      lon = 2.3522;
+      console.warn('Invalid coordinates, using London fallback');
+      lat = 51.5074;
+      lon = -0.1278;
     }
 
     // Obtenir l'illumination de la lune

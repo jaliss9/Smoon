@@ -8,6 +8,9 @@ interface SminaCardProps {
 }
 
 export default function SminaCard({ value }: SminaCardProps) {
+  // Protection contre les valeurs invalides
+  const safeValue = typeof value === 'number' && !isNaN(value) ? Math.min(100, Math.max(0, value)) : 0;
+  
   return (
     <div
       style={{
@@ -26,7 +29,7 @@ export default function SminaCard({ value }: SminaCardProps) {
           SMINA RADIANCE
         </span>
       </div>
-      <SminaBar value={value} />
+      <SminaBar value={safeValue} />
     </div>
   );
 }

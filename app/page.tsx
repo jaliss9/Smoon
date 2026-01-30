@@ -15,16 +15,34 @@ interface Location {
   name: string;
 }
 
-const PARIS_FALLBACK: Location = {
-  lat: 48.8566,
-  lon: 2.3522,
-  name: "Paris, France",
+const LONDON_FALLBACK: Location = {
+  lat: 51.5074,
+  lon: -0.1278,
+  name: "London, UK",
 };
 
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
-  const [location, setLocation] = useState<Location>(PARIS_FALLBACK);
-  const [moonData, setMoonData] = useState(calculateMoonData(PARIS_FALLBACK.lat, PARIS_FALLBACK.lon));
+  const [location, setLocation] = useState<Location>(LONDON_FALLBACK);
+  const [moonData, setMoonData] = useState(() => {
+    try {
+      return calculateMoonData(LONDON_FALLBACK.lat, LONDON_FALLBACK.lon);
+    } catch (e) {
+      console.error('Error initializing moonData:', e);
+      return {
+        phase: 'Nouvelle lune',
+        phaseValue: 0,
+        illumination: 0,
+        moonrise: null,
+        moonset: null,
+        daysUntilFullMoon: 15,
+        visibilityDuration: null,
+        distance: 384400,
+        sminaValue: 5,
+        altitude: 0,
+      };
+    }
+  });
 
   // Demander la géolocalisation au chargement
   useEffect(() => {
@@ -108,15 +126,15 @@ export default function Home() {
         },
         (error) => {
           // Log plus informatif
-          console.warn("Géolocalisation non disponible, utilisation du fallback Paris:", error.message || error.code);
+          console.warn("Géolocalisation non disponible, utilisation du fallback London:", error.message || error.code);
           
           try {
-            // Utiliser le fallback Paris silencieusement
-            const fallbackCoords = { lat: 48.8566, lon: 2.3522 };
+            // Utiliser le fallback London silencieusement
+            const fallbackCoords = { lat: 51.5074, lon: -0.1278 };
             if (typeof window !== 'undefined' && window.localStorage) {
               localStorage.setItem('smoon_location', JSON.stringify(fallbackCoords));
             }
-            setLocation(PARIS_FALLBACK);
+            setLocation(LONDON_FALLBACK);
             
             // Calculer les données avec le fallback
             const data = calculateMoonData(fallbackCoords.lat, fallbackCoords.lon);
@@ -160,8 +178,27 @@ export default function Home() {
   }, [isMounted, location]);
 
   if (!isMounted) {
-    return null;
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] flex items-center justify-center" style={{ minHeight: '100dvh' }}>
+        <div className="text-white text-center">
+          <p>Chargement...</p>
+        </div>
+      </main>
+    );
   }
+
+  // Protection contre les erreurs de données - utiliser useEffect pour éviter les re-renders infinis
+  useEffect(() => {
+    if (!moonData || typeof moonData.illumination !== 'number' || isNaN(moonData.illumination)) {
+      console.warn('Invalid moonData, reinitializing...');
+      try {
+        const data = calculateMoonData(location.lat, location.lon);
+        setMoonData(data);
+      } catch (e) {
+        console.error('Failed to reinitialize moonData:', e);
+      }
+    }
+  }, [moonData, location]);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] px-5 max-w-[430px] mx-auto" style={{ minHeight: '100dvh', paddingTop: '60px', paddingBottom: '40px', position: 'relative', zIndex: 1 }}>
@@ -199,24 +236,27 @@ export default function Home() {
       />
       
       {/* Header - Location uniquement */}
-      <Header location={location.name} />
+      <Header location={location?.name || "London, UK"} />
 
       {/* Lune */}
       <div style={{ marginBottom: '24px' }}>
-        <Moon illumination={moonData.illumination} phase={moonData.phaseValue} />
+        <Moon 
+          illumination={moonData?.illumination ?? 0} 
+          phase={moonData?.phaseValue ?? 0} 
+        />
       </div>
 
       {/* Phase Name */}
       <div className="text-center" style={{ marginBottom: '16px' }} suppressHydrationWarning>
         <h1 className="text-[28px] font-light tracking-[-0.5px] text-white" suppressHydrationWarning>
-          {moonData.phase}
+          {moonData?.phase || "Nouvelle lune"}
         </h1>
       </div>
 
       {/* Illumination */}
       <div className="text-center" style={{ marginBottom: '80px' }} suppressHydrationWarning>
         <span className="text-[56px] font-extralight tracking-[-3px] text-white" suppressHydrationWarning>
-          {moonData.illumination}
+          {moonData?.illumination ?? 0}
         </span>
         <span className="text-[24px] font-light text-white">%</span>
         <p className="text-[13px] font-medium tracking-[1px] uppercase text-white/40 mt-1">ILLUMINATION</p>
@@ -236,20 +276,20 @@ export default function Home() {
       >
         {/* Grid 2 colonnes */}
         <div className="grid grid-cols-2" style={{ gap: '20px', marginBottom: '20px' }}>
-          <StatCard icon="rise" label="LEVER" value={formatTime(moonData.moonrise)} />
-          <StatCard icon="set" label="COUCHER" value={formatTime(moonData.moonset)} />
+          <StatCard icon="rise" label="LEVER" value={formatTime(moonData?.moonrise ?? null)} />
+          <StatCard icon="set" label="COUCHER" value={formatTime(moonData?.moonset ?? null)} />
         </div>
 
         <div className="grid grid-cols-2" style={{ gap: '20px', marginBottom: '20px' }}>
           <StatCard 
             icon="fullmoon" 
             label="PLEINE LUNE" 
-            value={moonData.daysUntilFullMoon === 0 ? "Aujourd'hui" : `${moonData.daysUntilFullMoon}j`} 
+            value={moonData?.daysUntilFullMoon === 0 ? "Aujourd'hui" : `${moonData?.daysUntilFullMoon ?? 0}j`} 
           />
           <StatCard 
             icon="duration" 
             label="DURÉE VISIBILITÉ" 
-            value={moonData.visibilityDuration !== null ? `${moonData.visibilityDuration}h` : "—"} 
+            value={moonData?.visibilityDuration !== null && moonData?.visibilityDuration !== undefined ? `${moonData.visibilityDuration}h` : "—"} 
           />
         </div>
 
@@ -257,10 +297,10 @@ export default function Home() {
         <StatCardWide 
           icon="distance" 
           label="DISTANCE TERRE-LUNE" 
-          value={`${moonData.distance.toLocaleString("fr-FR")} km`} 
+          value={`${(moonData?.distance ?? 384400).toLocaleString("fr-FR")} km`} 
         />
 
-        <SminaCard value={moonData.sminaValue} />
+        <SminaCard value={moonData?.sminaValue ?? 5} />
 
         {/* Carte de rappel */}
         <div style={{

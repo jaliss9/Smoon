@@ -5,8 +5,9 @@ interface SminaBarProps {
 }
 
 export default function SminaBar({ value }: SminaBarProps) {
-  // Position de l'étoile au-dessus de la barre, centrée selon la valeur
-  const starPosition = `${Math.min(100, Math.max(0, value))}%`;
+  // Protection contre les valeurs invalides
+  const safeValue = typeof value === 'number' && !isNaN(value) ? Math.min(100, Math.max(0, value)) : 0;
+  const starPosition = `${safeValue}%`;
 
   return (
     <div className="relative">
@@ -14,7 +15,7 @@ export default function SminaBar({ value }: SminaBarProps) {
       <div className="bg-[rgba(255,255,255,0.08)] rounded-full h-2 overflow-hidden">
         <div
           className="h-full rounded-full bg-gradient-to-r from-[rgba(180,160,220,0.6)] to-[rgba(220,200,255,0.9)] transition-all duration-300"
-          style={{ width: `${Math.min(100, value)}%` }}
+          style={{ width: `${safeValue}%` }}
         />
       </div>
       
