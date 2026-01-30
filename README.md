@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smoon PWA
 
-## Getting Started
+PWA iOS pour afficher l'état de la lune en temps réel selon la géolocalisation.
 
-First, run the development server:
+## Stack technique
+
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS
+- SunCalc pour les calculs lunaires
+- Web Push API pour notifications
+- Hébergement : Vercel
+
+## Installation
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuration requise
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Images de sprites lunaires
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ajoutez manuellement 30 images PNG dans `/public/sprites/` :
+- `moon-01.png` à `moon-30.png`
+- Format : 220x220px minimum
+- Images de la lune selon les phases
 
-## Learn More
+### Icônes PWA
 
-To learn more about Next.js, take a look at the following resources:
+Ajoutez les icônes suivantes dans `/public/` :
+- `icon-192.png` (192x192px)
+- `icon-512.png` (512x512px)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ces icônes sont utilisées pour l'installation PWA et les notifications.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Fonctionnalités
 
-## Deploy on Vercel
+- **Géolocalisation** : Demande automatique de permission, fallback sur Paris si refusé
+- **Données lunaires** : Phase, illumination, lever/coucher, distance, rayonnance de Smina
+- **Rafraîchissement auto** : Toutes les 5 minutes
+- **Notifications** : Alerte quand la lune passe au-dessus de l'horizon (cooldown 6h)
+- **PWA** : Installable sur iOS/Android, fonctionne hors ligne
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Structure du projet
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+/app
+  /page.tsx          # Page principale
+  /layout.tsx        # Layout avec meta PWA
+  /globals.css       # Styles globaux
+/components
+  /Moon.tsx          # Composant lune avec sprite
+  /StatCard.tsx      # Carte stat réutilisable
+  /StatCardWide.tsx  # Carte stat large
+  /SminaBar.tsx      # Barre rayonnance avec pulse
+  /Header.tsx         # Location + phase name
+/lib
+  /moon.ts           # Fonctions calculs SunCalc
+  /notifications.ts  # Logic notifications push
+/public
+  /sprites           # 30 images lune (à ajouter)
+  /manifest.json     # PWA manifest
+  /sw.js             # Service worker
+```
+
+## Déploiement
+
+Le projet est configuré pour Vercel. Déployez simplement en poussant sur votre repository GitHub connecté à Vercel.
+
+## Notes
+
+- Les données sont calculées en temps réel via SunCalc
+- La géolocalisation est sauvegardée en localStorage
+- Les notifications nécessitent une autorisation utilisateur
+- Le service worker permet le fonctionnement hors ligne

@@ -1,0 +1,280 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020205"/>
+      <stop offset="45%" stop-color="#05050d"/>
+      <stop offset="75%" stop-color="#0a0a18"/>
+      <stop offset="100%" stop-color="#0f0a1a"/>
+    </linearGradient>
+    <radialGradient id="moonBase" cx="38%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="20%" stop-color="#fafafa"/>
+      <stop offset="45%" stop-color="#f0f0ee"/>
+      <stop offset="70%" stop-color="#ddddd8"/>
+      <stop offset="100%" stop-color="#b8b8b2"/>
+    </radialGradient>
+    <radialGradient id="highlight" cx="30%" cy="28%" r="35%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+      <stop offset="60%" stop-color="rgba(255,255,255,0.08)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <linearGradient id="terminator" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="65%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="82%" stop-color="rgba(15,15,18,0.2)"/>
+      <stop offset="92%" stop-color="rgba(15,15,18,0.45)"/>
+      <stop offset="100%" stop-color="rgba(15,15,18,0.7)"/>
+    </linearGradient>
+    <radialGradient id="limb" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="70%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="88%" stop-color="rgba(30,30,35,0.08)"/>
+      <stop offset="100%" stop-color="rgba(30,30,35,0.18)"/>
+    </radialGradient>
+    <radialGradient id="glowOut" cx="45%" cy="55%" r="50%">
+      <stop offset="0%" stop-color="rgba(180,160,220,0)"/>
+      <stop offset="65%" stop-color="rgba(180,160,220,0)"/>
+      <stop offset="100%" stop-color="rgba(170,150,210,0.1)"/>
+    </radialGradient>
+    <radialGradient id="glowIn" cx="42%" cy="58%" r="50%">
+      <stop offset="50%" stop-color="rgba(200,180,255,0)"/>
+      <stop offset="100%" stop-color="rgba(190,170,245,0.25)"/>
+    </radialGradient>
+    <linearGradient id="trail" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(220,215,255,0)"/>
+      <stop offset="40%" stop-color="rgba(220,215,255,0.15)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.6)"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="512" height="512" rx="102" fill="url(#sky)"/>
+  
+  <g opacity="0.15">
+    <circle cx="28" cy="35" r="0.5" fill="#fff"/>
+    <circle cx="58" cy="18" r="0.4" fill="#fff"/>
+    <circle cx="92" cy="48" r="0.5" fill="#fff"/>
+    <circle cx="118" cy="32" r="0.4" fill="#fff"/>
+    <circle cx="155" cy="55" r="0.5" fill="#fff"/>
+    <circle cx="182" cy="28" r="0.4" fill="#fff"/>
+    <circle cx="312" cy="42" r="0.5" fill="#fff"/>
+    <circle cx="358" cy="62" r="0.4" fill="#fff"/>
+    <circle cx="438" cy="35" r="0.5" fill="#fff"/>
+    <circle cx="478" cy="52" r="0.4" fill="#fff"/>
+    <circle cx="22" cy="92" r="0.4" fill="#fff"/>
+    <circle cx="488" cy="85" r="0.5" fill="#fff"/>
+    <circle cx="28" cy="138" r="0.5" fill="#fff"/>
+    <circle cx="482" cy="128" r="0.4" fill="#fff"/>
+    <circle cx="18" cy="185" r="0.4" fill="#fff"/>
+    <circle cx="492" cy="172" r="0.5" fill="#fff"/>
+    <circle cx="25" cy="232" r="0.5" fill="#fff"/>
+    <circle cx="485" cy="218" r="0.4" fill="#fff"/>
+    <circle cx="22" cy="282" r="0.4" fill="#fff"/>
+    <circle cx="488" cy="268" r="0.5" fill="#fff"/>
+    <circle cx="28" cy="328" r="0.5" fill="#fff"/>
+    <circle cx="482" cy="315" r="0.4" fill="#fff"/>
+    <circle cx="18" cy="375" r="0.4" fill="#fff"/>
+    <circle cx="492" cy="362" r="0.5" fill="#fff"/>
+    <circle cx="32" cy="418" r="0.5" fill="#fff"/>
+    <circle cx="478" cy="408" r="0.4" fill="#fff"/>
+    <circle cx="62" cy="458" r="0.4" fill="#fff"/>
+    <circle cx="108" cy="475" r="0.5" fill="#fff"/>
+    <circle cx="158" cy="462" r="0.4" fill="#fff"/>
+    <circle cx="205" cy="478" r="0.5" fill="#fff"/>
+    <circle cx="248" cy="465" r="0.4" fill="#fff"/>
+    <circle cx="292" cy="480" r="0.5" fill="#fff"/>
+    <circle cx="338" cy="468" r="0.4" fill="#fff"/>
+    <circle cx="385" cy="482" r="0.5" fill="#fff"/>
+    <circle cx="428" cy="462" r="0.4" fill="#fff"/>
+    <circle cx="468" cy="478" r="0.5" fill="#fff"/>
+  </g>
+  
+  <g opacity="0.25">
+    <circle cx="42" cy="68" r="0.7" fill="#fff"/>
+    <circle cx="95" cy="82" r="0.6" fill="rgba(255,248,230,1)"/>
+    <circle cx="138" cy="62" r="0.7" fill="#fff"/>
+    <circle cx="188" cy="78" r="0.6" fill="#fff"/>
+    <circle cx="328" cy="58" r="0.7" fill="rgba(255,250,235,1)"/>
+    <circle cx="418" cy="78" r="0.6" fill="#fff"/>
+    <circle cx="458" cy="95" r="0.7" fill="#fff"/>
+    <circle cx="35" cy="112" r="0.6" fill="#fff"/>
+    <circle cx="475" cy="132" r="0.7" fill="rgba(255,248,230,1)"/>
+    <circle cx="28" cy="162" r="0.7" fill="#fff"/>
+    <circle cx="482" cy="185" r="0.6" fill="#fff"/>
+    <circle cx="38" cy="212" r="0.6" fill="rgba(255,250,235,1)"/>
+    <circle cx="472" cy="238" r="0.7" fill="#fff"/>
+    <circle cx="32" cy="268" r="0.7" fill="#fff"/>
+    <circle cx="478" cy="295" r="0.6" fill="#fff"/>
+    <circle cx="42" cy="322" r="0.6" fill="rgba(255,248,230,1)"/>
+    <circle cx="468" cy="348" r="0.7" fill="#fff"/>
+    <circle cx="48" cy="378" r="0.7" fill="#fff"/>
+    <circle cx="462" cy="402" r="0.6" fill="#fff"/>
+    <circle cx="78" cy="438" r="0.7" fill="rgba(255,250,235,1)"/>
+    <circle cx="128" cy="462" r="0.6" fill="#fff"/>
+    <circle cx="178" cy="448" r="0.7" fill="#fff"/>
+    <circle cx="228" cy="468" r="0.6" fill="#fff"/>
+    <circle cx="312" cy="472" r="0.7" fill="rgba(255,248,230,1)"/>
+    <circle cx="362" cy="455" r="0.6" fill="#fff"/>
+    <circle cx="408" cy="468" r="0.7" fill="#fff"/>
+    <circle cx="452" cy="448" r="0.6" fill="#fff"/>
+  </g>
+  
+  <g opacity="0.4">
+    <circle cx="72" cy="102" r="0.9" fill="#fff"/>
+    <circle cx="125" cy="88" r="0.85" fill="rgba(255,250,240,1)"/>
+    <circle cx="172" cy="98" r="0.9" fill="#fff"/>
+    <circle cx="442" cy="112" r="0.85" fill="#fff"/>
+    <circle cx="48" cy="148" r="0.9" fill="#fff"/>
+    <circle cx="462" cy="165" r="0.85" fill="rgba(255,250,240,1)"/>
+    <circle cx="42" cy="198" r="0.85" fill="#fff"/>
+    <circle cx="468" cy="212" r="0.9" fill="#fff"/>
+    <circle cx="52" cy="252" r="0.9" fill="rgba(255,250,240,1)"/>
+    <circle cx="458" cy="272" r="0.85" fill="#fff"/>
+    <circle cx="45" cy="305" r="0.85" fill="#fff"/>
+    <circle cx="465" cy="325" r="0.9" fill="#fff"/>
+    <circle cx="55" cy="358" r="0.9" fill="#fff"/>
+    <circle cx="455" cy="378" r="0.85" fill="rgba(255,250,240,1)"/>
+    <circle cx="68" cy="408" r="0.85" fill="#fff"/>
+    <circle cx="442" cy="425" r="0.9" fill="#fff"/>
+    <circle cx="98" cy="448" r="0.9" fill="#fff"/>
+    <circle cx="148" cy="472" r="0.85" fill="rgba(255,250,240,1)"/>
+    <circle cx="268" cy="478" r="0.9" fill="#fff"/>
+    <circle cx="392" cy="458" r="0.85" fill="#fff"/>
+    <circle cx="438" cy="442" r="0.9" fill="#fff"/>
+  </g>
+  
+  <g opacity="0.55">
+    <circle cx="88" cy="122" r="1.1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="148" cy="105" r="1" fill="rgba(255,250,240,0.9)"/>
+    <circle cx="432" cy="138" r="1.1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="58" cy="178" r="1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="452" cy="195" r="1.1" fill="rgba(255,250,240,0.9)"/>
+    <circle cx="52" cy="235" r="1.1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="458" cy="255" r="1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="62" cy="288" r="1" fill="rgba(255,250,240,0.9)"/>
+    <circle cx="448" cy="308" r="1.1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="68" cy="342" r="1.1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="442" cy="362" r="1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="75" cy="392" r="1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="428" cy="408" r="1.1" fill="rgba(255,250,240,0.9)"/>
+    <circle cx="112" cy="432" r="1.1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="168" cy="458" r="1" fill="rgba(255,250,240,0.9)"/>
+    <circle cx="345" cy="452" r="1.1" fill="rgba(240,242,255,0.9)"/>
+    <circle cx="405" cy="435" r="1" fill="rgba(240,242,255,0.9)"/>
+  </g>
+  
+  <g opacity="0.5">
+    <circle cx="248" cy="118" r="0.95" fill="rgba(235,240,255,0.85)"/>
+    <circle cx="205" cy="130" r="0.7" fill="rgba(235,240,255,0.75)"/>
+    <circle cx="288" cy="122" r="0.85" fill="rgba(235,240,255,0.8)"/>
+    <circle cx="168" cy="150" r="0.75" fill="rgba(255,250,240,0.78)"/>
+    <circle cx="325" cy="135" r="0.65" fill="rgba(235,240,255,0.72)"/>
+    <circle cx="310" cy="148" r="0.5" fill="rgba(235,240,255,0.68)"/>
+  </g>
+  
+  <g opacity="0.42">
+    <circle cx="358" cy="178" r="0.85" fill="rgba(235,240,255,0.78)"/>
+    <circle cx="378" cy="212" r="0.7" fill="rgba(255,250,240,0.72)"/>
+    <circle cx="388" cy="252" r="0.8" fill="rgba(235,240,255,0.75)"/>
+    <circle cx="392" cy="290" r="0.65" fill="rgba(235,240,255,0.7)"/>
+    <circle cx="380" cy="322" r="0.75" fill="rgba(235,240,255,0.72)"/>
+    <circle cx="362" cy="352" r="0.7" fill="rgba(255,250,240,0.68)"/>
+  </g>
+  
+  <g opacity="0.45">
+    <circle cx="335" cy="375" r="0.8" fill="rgba(235,240,255,0.75)"/>
+    <circle cx="295" cy="388" r="0.9" fill="rgba(235,240,255,0.8)"/>
+    <circle cx="262" cy="395" r="0.7" fill="rgba(255,250,240,0.78)"/>
+    <circle cx="218" cy="390" r="0.75" fill="rgba(235,240,255,0.75)"/>
+    <circle cx="178" cy="378" r="0.85" fill="rgba(235,240,255,0.72)"/>
+    <circle cx="152" cy="358" r="0.6" fill="rgba(235,240,255,0.68)"/>
+  </g>
+  
+  <g opacity="0.52">
+    <circle cx="135" cy="328" r="0.8" fill="rgba(255,250,240,0.78)"/>
+    <circle cx="118" cy="292" r="0.75" fill="rgba(235,240,255,0.8)"/>
+    <circle cx="112" cy="252" r="0.7" fill="rgba(235,240,255,0.75)"/>
+    <circle cx="115" cy="212" r="0.85" fill="rgba(235,240,255,0.8)"/>
+    <circle cx="128" cy="175" r="0.9" fill="rgba(235,240,255,0.82)"/>
+    <circle cx="152" cy="145" r="0.7" fill="rgba(255,250,240,0.75)"/>
+  </g>
+  
+  <g opacity="0.6">
+    <line x1="85" y1="165" x2="105" y2="158" stroke="url(#trail)" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="105" cy="158" r="1.2" fill="rgba(255,255,255,0.9)"/>
+  </g>
+  
+  <circle cx="250" cy="262" r="165" fill="url(#glowOut)"/>
+  <circle cx="252" cy="260" r="135" fill="rgba(180,160,220,0.015)"/>
+  <circle cx="254" cy="258" r="120" fill="rgba(190,170,235,0.025)"/>
+  <circle cx="252" cy="260" r="110" fill="url(#glowIn)"/>
+  
+  <circle cx="256" cy="256" r="96" fill="url(#moonBase)"/>
+  
+  <circle cx="220" cy="215" r="14" fill="rgba(180,180,175,0.5)"/>
+  <circle cx="220" cy="215" r="10" fill="rgba(200,200,195,0.3)"/>
+  
+  <circle cx="285" cy="225" r="10" fill="rgba(175,175,170,0.45)"/>
+  <circle cx="285" cy="225" r="7" fill="rgba(195,195,190,0.25)"/>
+  
+  <circle cx="255" cy="195" r="6" fill="rgba(180,180,175,0.4)"/>
+  <circle cx="255" cy="195" r="4" fill="rgba(200,200,195,0.2)"/>
+  
+  <circle cx="230" cy="290" r="12" fill="rgba(175,175,170,0.45)"/>
+  <circle cx="230" cy="290" r="8" fill="rgba(195,195,190,0.25)"/>
+  
+  <circle cx="305" cy="270" r="7" fill="rgba(180,180,175,0.4)"/>
+  <circle cx="305" cy="270" r="5" fill="rgba(200,200,195,0.2)"/>
+  
+  <circle cx="270" cy="310" r="5" fill="rgba(175,175,170,0.35)"/>
+  <circle cx="270" cy="310" r="3.5" fill="rgba(195,195,190,0.18)"/>
+  
+  <circle cx="256" cy="256" r="96" fill="url(#limb)"/>
+  <circle cx="256" cy="256" r="96" fill="url(#highlight)"/>
+  <circle cx="256" cy="256" r="96" fill="url(#terminator)"/>
+  <circle cx="256" cy="256" r="96" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+  
+  <ellipse cx="256" cy="415" rx="240" ry="5" fill="rgba(160,150,200,0.025)"/>
+  <ellipse cx="256" cy="438" rx="45" ry="12" fill="rgba(200,195,230,0.02)"/>
+  <ellipse cx="256" cy="446" rx="30" ry="6" fill="rgba(190,185,225,0.015)"/>
+  <ellipse cx="256" cy="478" rx="270" ry="45" fill="rgba(140,130,190,0.015)"/>
+  
+  <g>
+    <circle cx="400" cy="95" r="18" fill="rgba(190,170,245,0.07)"/>
+    <circle cx="400" cy="95" r="12" fill="rgba(200,180,255,0.12)"/>
+    <circle cx="400" cy="95" r="7" fill="rgba(215,200,255,0.22)"/>
+    <circle cx="400" cy="95" r="3.5" fill="rgba(230,220,255,0.38)"/>
+    <path d="M400 72 L404 88 L420 95 L404 102 L400 118 L396 102 L380 95 L396 88 Z" fill="rgba(250,248,255,0.92)"/>
+    <ellipse cx="400" cy="95" rx="2.2" ry="13" fill="rgba(255,255,255,0.88)"/>
+    <ellipse cx="400" cy="95" rx="13" ry="2.2" fill="rgba(255,255,255,0.88)"/>
+    <circle cx="400" cy="95" r="3" fill="#fff"/>
+  </g>
+  
+  <g>
+    <circle cx="355" cy="145" r="9" fill="rgba(185,165,240,0.05)"/>
+    <circle cx="355" cy="145" r="5.5" fill="rgba(200,185,255,0.1)"/>
+    <circle cx="355" cy="145" r="2.5" fill="rgba(215,205,255,0.2)"/>
+    <path d="M355 132 L357 143 L368 145 L357 147 L355 158 L353 147 L342 145 L353 143 Z" fill="rgba(245,242,255,0.85)"/>
+    <ellipse cx="355" cy="145" rx="1.5" ry="8" fill="rgba(255,255,255,0.75)"/>
+    <ellipse cx="355" cy="145" rx="8" ry="1.5" fill="rgba(255,255,255,0.75)"/>
+    <circle cx="355" cy="145" r="1.8" fill="rgba(255,255,255,0.9)"/>
+  </g>
+  
+  <g>
+    <circle cx="95" cy="395" r="7" fill="rgba(185,165,240,0.04)"/>
+    <circle cx="95" cy="395" r="4" fill="rgba(200,185,255,0.08)"/>
+    <circle cx="95" cy="395" r="2" fill="rgba(215,205,255,0.16)"/>
+    <path d="M95 384 L96.5 393 L105 395 L96.5 397 L95 406 L93.5 397 L85 395 L93.5 393 Z" fill="rgba(245,242,255,0.78)"/>
+    <ellipse cx="95" cy="395" rx="1.2" ry="6.5" fill="rgba(255,255,255,0.68)"/>
+    <ellipse cx="95" cy="395" rx="6.5" ry="1.2" fill="rgba(255,255,255,0.68)"/>
+    <circle cx="95" cy="395" r="1.5" fill="rgba(255,255,255,0.85)"/>
+  </g>
+  
+  <g>
+    <circle cx="130" cy="88" r="5" fill="rgba(185,165,240,0.03)"/>
+    <circle cx="130" cy="88" r="2.8" fill="rgba(200,185,255,0.06)"/>
+    <path d="M130 80 L131 86.5 L137 88 L131 89.5 L130 96 L129 89.5 L123 88 L129 86.5 Z" fill="rgba(245,242,255,0.7)"/>
+    <ellipse cx="130" cy="88" rx="1" ry="5" fill="rgba(255,255,255,0.6)"/>
+    <ellipse cx="130" cy="88" rx="5" ry="1" fill="rgba(255,255,255,0.6)"/>
+    <circle cx="130" cy="88" r="1.2" fill="rgba(255,255,255,0.8)"/>
+  </g>
+</svg>
