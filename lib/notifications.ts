@@ -9,41 +9,65 @@ const NOTIFICATION_COOLDOWN = 6 * 60 * 60 * 1000; // 6 heures en millisecondes
  * Vérifie si les notifications sont supportées et autorisées
  */
 export async function checkNotificationPermission(): Promise<boolean> {
-  if (!("Notification" in window)) {
+  try {
+    if (typeof window === 'undefined' || typeof Notification === 'undefined' || !("Notification" in window)) {
+      return false;
+    }
+
+    if (Notification.permission === "granted") {
+      return true;
+    }
+
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      return permission === "granted";
+    }
+
+    return false;
+  } catch (e) {
+    console.warn('Error checking notification permission:', e);
     return false;
   }
-
-  if (Notification.permission === "granted") {
-    return true;
-  }
-
-  if (Notification.permission === "default") {
-    const permission = await Notification.requestPermission();
-    return permission === "granted";
-  }
-
-  return false;
 }
 
 /**
  * Vérifie si on peut envoyer une notification (cooldown respecté)
  */
 function canSendNotification(): boolean {
-  const lastNotification = localStorage.getItem(NOTIFICATION_KEY);
-  if (!lastNotification) {
-    return true;
-  }
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return true; // Si pas de localStorage, on peut envoyer
+    }
+    
+    const lastNotification = localStorage.getItem(NOTIFICATION_KEY);
+    if (!lastNotification) {
+      return true;
+    }
 
-  const lastTime = parseInt(lastNotification, 10);
-  const now = Date.now();
-  return now - lastTime > NOTIFICATION_COOLDOWN;
+    const lastTime = parseInt(lastNotification, 10);
+    if (isNaN(lastTime)) {
+      return true;
+    }
+    
+    const now = Date.now();
+    return now - lastTime > NOTIFICATION_COOLDOWN;
+  } catch (e) {
+    console.warn("Erreur canSendNotification:", e);
+    return true; // En cas d'erreur, on peut envoyer
+  }
 }
 
 /**
  * Enregistre l'heure de la dernière notification
  */
 function recordNotification(): void {
-  localStorage.setItem(NOTIFICATION_KEY, Date.now().toString());
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(NOTIFICATION_KEY, Date.now().toString());
+    }
+  } catch (e) {
+    console.warn("Erreur recordNotification:", e);
+  }
 }
 
 /**
@@ -68,6 +92,10 @@ export async function checkAndNotifyMoonVisibility(altitude: number): Promise<vo
 
   // Envoyer la notification
   try {
+    if (typeof window === 'undefined' || typeof Notification === 'undefined') {
+      return;
+    }
+    
     const notification = new Notification("Smoon", {
       body: "Smina, la lune est visible ce soir 🌙",
       icon: "/icon-192.png",
@@ -79,9 +107,15 @@ export async function checkAndNotifyMoonVisibility(altitude: number): Promise<vo
     recordNotification();
 
     // Fermer automatiquement après 5 secondes
-    setTimeout(() => {
-      notification.close();
-    }, 5000);
+    if (typeof setTimeout !== 'undefined') {
+      setTimeout(() => {
+        try {
+          notification.close();
+        } catch (e) {
+          console.warn("Erreur fermeture notification:", e);
+        }
+      }, 5000);
+    }
   } catch (error) {
     console.error("Erreur lors de l'envoi de la notification:", error);
   }

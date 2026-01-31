@@ -54,28 +54,38 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js', { scope: '/' })
-                    .then(reg => {
-                      console.log('Service Worker registered', reg);
-                      // Vérifier les mises à jour
-                      reg.addEventListener('updatefound', () => {
-                        const newWorker = reg.installing;
-                        if (newWorker) {
-                          newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                              console.log('New service worker available');
-                            }
-                          });
-                        }
-                      });
-                    })
-                    .catch(err => {
-                      console.warn('Service Worker registration failed:', err);
+              (function() {
+                try {
+                  if (typeof window !== 'undefined' && 
+                      typeof navigator !== 'undefined' && 
+                      'serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                        .then(reg => {
+                          console.log('Service Worker registered', reg);
+                          // Vérifier les mises à jour
+                          if (reg && typeof reg.addEventListener === 'function') {
+                            reg.addEventListener('updatefound', () => {
+                              const newWorker = reg.installing;
+                              if (newWorker && typeof newWorker.addEventListener === 'function') {
+                                newWorker.addEventListener('statechange', () => {
+                                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('New service worker available');
+                                  }
+                                });
+                              }
+                            });
+                          }
+                        })
+                        .catch(err => {
+                          console.warn('Service Worker registration failed:', err);
+                        });
                     });
-                });
-              }
+                  }
+                } catch (e) {
+                  console.warn('Service Worker setup error:', e);
+                }
+              })();
             `,
           }}
         />

@@ -27,6 +27,8 @@ const LONDON_FALLBACK: Location = {
 };
 
 export default function Home() {
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [location, setLocation] = useState<Location>(LONDON_FALLBACK);
   
@@ -73,135 +75,169 @@ export default function Home() {
 
   // Demander la géolocalisation au chargement
   useEffect(() => {
-    setIsMounted(true);
+    const init = async () => {
+      try {
+        setIsMounted(true);
+        setIsLoading(true);
 
-    try {
-      // Vérifier si localStorage est disponible
-      if (typeof window !== 'undefined' && window.localStorage) {
-        // Vérifier si on a une position sauvegardée
-        const savedLocation = localStorage.getItem("smoon_location");
-        if (savedLocation) {
+        // Vérifier si localStorage est disponible
+        if (typeof window !== 'undefined' && window.localStorage) {
           try {
-            const parsed = JSON.parse(savedLocation);
-            if (parsed && typeof parsed.lat === 'number' && typeof parsed.lon === 'number') {
-              setLocation(parsed);
-              const data = calculateMoonData(parsed.lat, parsed.lon);
-              setMoonData(data);
+            // Vérifier si on a une position sauvegardée
+            const savedLocation = localStorage.getItem("smoon_location");
+            if (savedLocation) {
               try {
-                if (typeof checkAndNotifyHighIllumination === 'function') {
-                  checkAndNotifyHighIllumination(data.illumination);
-                }
-              } catch (e) {
-                console.warn("Erreur notification:", e);
-              }
-            }
-          } catch (e) {
-            console.warn("Erreur lors du chargement de la position sauvegardée:", e);
-          }
-        }
-      }
-    } catch (e) {
-      console.warn("Erreur localStorage:", e);
-    }
-
-    // Demander la géolocalisation
-    if (typeof window !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const { latitude, longitude } = position.coords;
-            
-            // Reverse geocoding pour obtenir le nom de la ville
-            const safeLat = typeof latitude === 'number' && !isNaN(latitude) ? latitude : 51.5074;
-            const safeLon = typeof longitude === 'number' && !isNaN(longitude) ? longitude : -0.1278;
-            let locationName = `${safeLat.toFixed(2)}, ${safeLon.toFixed(2)}`;
-            try {
-              const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
-                {
-                  headers: {
-                    'User-Agent': 'Smoon PWA'
+                const parsed = JSON.parse(savedLocation);
+                if (parsed && typeof parsed.lat === 'number' && typeof parsed.lon === 'number') {
+                  setLocation(parsed);
+                  const data = calculateMoonData(parsed.lat, parsed.lon);
+                  setMoonData(data);
+                  try {
+                    if (typeof checkAndNotifyHighIllumination === 'function') {
+                      checkAndNotifyHighIllumination(data.illumination);
+                    }
+                  } catch (e) {
+                    console.warn("Erreur notification:", e);
                   }
                 }
-              );
-              if (response.ok) {
-                const data = await response.json();
-                const city = data.address?.city || data.address?.town || data.address?.village || data.address?.municipality || "";
-                const country = data.address?.country || "";
-                if (city) {
-                  locationName = country ? `${city}, ${country}` : city;
-                }
+              } catch (e) {
+                console.warn("Erreur lors du chargement de la position sauvegardée:", e);
               }
-            } catch (e) {
-              // Fallback sur coordonnées si l'API échoue
-              console.warn("Erreur reverse geocoding, utilisation des coordonnées:", e);
-            }
-            
-            const newLocation: Location = {
-              lat: safeLat,
-              lon: safeLon,
-              name: locationName,
-            };
-            setLocation(newLocation);
-            
-            try {
-              if (typeof window !== 'undefined' && window.localStorage) {
-                localStorage.setItem("smoon_location", JSON.stringify(newLocation));
-              }
-            } catch (e) {
-              console.warn("Erreur sauvegarde localStorage:", e);
-            }
-            
-            const data = calculateMoonData(newLocation.lat, newLocation.lon);
-            setMoonData(data);
-            try {
-              if (typeof checkAndNotifyHighIllumination === 'function') {
-                checkAndNotifyHighIllumination(data.illumination);
-              }
-            } catch (e) {
-              console.warn("Erreur notification:", e);
             }
           } catch (e) {
-            console.error("Erreur lors du traitement de la géolocalisation:", e);
+            console.warn("Erreur localStorage:", e);
           }
-        },
-        (error) => {
-          // Log plus informatif
-          console.warn("Géolocalisation non disponible, utilisation du fallback London:", error.message || error.code);
-          
+        }
+
+        // Demander la géolocalisation - vérification stricte pour Safari
+        if (typeof window !== 'undefined' && 
+            typeof navigator !== 'undefined' && 
+            'geolocation' in navigator && 
+            navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              try {
+                const { latitude, longitude } = position.coords;
+                
+                // Reverse geocoding pour obtenir le nom de la ville
+                const safeLat = typeof latitude === 'number' && !isNaN(latitude) ? latitude : 51.5074;
+                const safeLon = typeof longitude === 'number' && !isNaN(longitude) ? longitude : -0.1278;
+                let locationName = `${safeLat.toFixed(2)}, ${safeLon.toFixed(2)}`;
+                try {
+                  const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+                    {
+                      headers: {
+                        'User-Agent': 'Smoon PWA'
+                      }
+                    }
+                  );
+                  if (response.ok) {
+                    const data = await response.json();
+                    const city = data.address?.city || data.address?.town || data.address?.village || data.address?.municipality || "";
+                    const country = data.address?.country || "";
+                    if (city) {
+                      locationName = country ? `${city}, ${country}` : city;
+                    }
+                  }
+                } catch (e) {
+                  // Fallback sur coordonnées si l'API échoue
+                  console.warn("Erreur reverse geocoding, utilisation des coordonnées:", e);
+                }
+                
+                const newLocation: Location = {
+                  lat: safeLat,
+                  lon: safeLon,
+                  name: locationName,
+                };
+                setLocation(newLocation);
+                
+                try {
+                  if (typeof window !== 'undefined' && window.localStorage) {
+                    localStorage.setItem("smoon_location", JSON.stringify(newLocation));
+                  }
+                } catch (e) {
+                  console.warn("Erreur sauvegarde localStorage:", e);
+                }
+                
+                const data = calculateMoonData(newLocation.lat, newLocation.lon);
+                setMoonData(data);
+                try {
+                  if (typeof checkAndNotifyHighIllumination === 'function') {
+                    checkAndNotifyHighIllumination(data.illumination);
+                  }
+                } catch (e) {
+                  console.warn("Erreur notification:", e);
+                }
+              } catch (e) {
+                console.error("Erreur lors du traitement de la géolocalisation:", e);
+              }
+            },
+            (error) => {
+              // Log plus informatif
+              console.warn("Géolocalisation non disponible, utilisation du fallback London:", error.message || error.code);
+              
+              try {
+                // Utiliser le fallback London silencieusement
+                const fallbackCoords = { lat: 51.5074, lon: -0.1278 };
+                if (typeof window !== 'undefined' && window.localStorage) {
+                  localStorage.setItem('smoon_location', JSON.stringify(fallbackCoords));
+                }
+                setLocation(LONDON_FALLBACK);
+                
+                // Calculer les données avec le fallback
+                const data = calculateMoonData(fallbackCoords.lat, fallbackCoords.lon);
+                setMoonData(data);
+                try {
+                  if (typeof checkAndNotifyHighIllumination === 'function') {
+                    checkAndNotifyHighIllumination(data.illumination);
+                  }
+                } catch (e) {
+                  console.warn("Erreur notification:", e);
+                }
+              } catch (e) {
+                console.error("Erreur lors du fallback:", e);
+              }
+            }
+          );
+        } else {
+          // Pas de géolocalisation disponible, utiliser fallback
+          console.warn("Géolocalisation non disponible, utilisation du fallback London");
           try {
-            // Utiliser le fallback London silencieusement
             const fallbackCoords = { lat: 51.5074, lon: -0.1278 };
             if (typeof window !== 'undefined' && window.localStorage) {
               localStorage.setItem('smoon_location', JSON.stringify(fallbackCoords));
             }
             setLocation(LONDON_FALLBACK);
-            
-            // Calculer les données avec le fallback
             const data = calculateMoonData(fallbackCoords.lat, fallbackCoords.lon);
             setMoonData(data);
-            try {
-              if (typeof checkAndNotifyHighIllumination === 'function') {
-                checkAndNotifyHighIllumination(data.illumination);
-              }
-            } catch (e) {
-              console.warn("Erreur notification:", e);
-            }
           } catch (e) {
             console.error("Erreur lors du fallback:", e);
           }
         }
-      );
-    }
+        
+        setIsLoading(false);
+      } catch (e) {
+        console.error('Erreur initialisation:', e);
+        setError('Erreur de chargement');
+        setIsLoading(false);
+      }
+    };
+    
+    init();
   }, []);
 
   // Rafraîchissement automatique toutes les 5 minutes
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || isLoading) return;
 
     const refreshData = () => {
       try {
-        console.log("Données rafraîchies à", new Date().toLocaleTimeString());
+        if (typeof window === 'undefined') return;
+        
+        if (typeof Date !== 'undefined' && typeof Date.prototype.toLocaleTimeString === 'function') {
+          console.log("Données rafraîchies à", new Date().toLocaleTimeString());
+        }
         const newData = calculateMoonData(location.lat, location.lon);
         setMoonData(newData);
         
@@ -231,11 +267,16 @@ export default function Home() {
     // Rafraîchir immédiatement
     refreshData();
 
-    // Puis toutes les 5 minutes
-    const interval = setInterval(refreshData, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [isMounted, location]);
+    // Puis toutes les 5 minutes - vérifier que setInterval est disponible
+    if (typeof setInterval !== 'undefined') {
+      const interval = setInterval(refreshData, 5 * 60 * 1000);
+      return () => {
+        if (typeof clearInterval !== 'undefined') {
+          clearInterval(interval);
+        }
+      };
+    }
+  }, [isMounted, location, isLoading]);
 
   if (!isMounted) {
     return (
@@ -249,7 +290,7 @@ export default function Home() {
 
   // Protection contre les erreurs de données - vérification unique au montage
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || isLoading) return;
     
     // Vérifier une seule fois après le montage
     const checkData = () => {
@@ -267,9 +308,15 @@ export default function Home() {
     };
     
     // Délai pour éviter les conflits avec les autres useEffect
-    const timeout = setTimeout(checkData, 100);
-    return () => clearTimeout(timeout);
-  }, [isMounted]);
+    if (typeof setTimeout !== 'undefined') {
+      const timeout = setTimeout(checkData, 100);
+      return () => {
+        if (typeof clearTimeout !== 'undefined') {
+          clearTimeout(timeout);
+        }
+      };
+    }
+  }, [isMounted, isLoading, moonData, location]);
 
   // Protection finale avant le rendu
   if (!moonData) {
