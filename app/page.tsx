@@ -507,8 +507,8 @@ export default function Home() {
                 <stop offset="100%" stopColor="#f0abfc" />
               </linearGradient>
               <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#ffd700" />
-                <stop offset="100%" stopColor="#ffec80" />
+                <stop offset="0%" stopColor="#e0e0e0" />
+                <stop offset="100%" stopColor="#ffffff" />
               </linearGradient>
             </defs>
           </svg>
@@ -528,13 +528,13 @@ export default function Home() {
         
         <div style={{
           marginTop: '16px', padding: '8px 20px',
-          background: moonData.illumination >= 95 ? 'rgba(255,215,0,0.2)' : 'rgba(167,139,250,0.15)',
+          background: moonData.illumination >= 95 ? 'rgba(255,255,255,0.08)' : 'rgba(167,139,250,0.15)',
           borderRadius: '20px',
-          border: moonData.illumination >= 95 ? '1px solid rgba(255,215,0,0.4)' : '1px solid rgba(167,139,250,0.3)'
+          border: moonData.illumination >= 95 ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(167,139,250,0.3)'
         }}>
           <span style={{
             fontSize: '14px',
-            color: moonData.illumination >= 95 ? 'rgba(255,235,180,1)' : 'rgba(255,255,255,0.9)',
+            color: moonData.illumination >= 95 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.9)',
             letterSpacing: '1px'
           }}>
             {moonData?.phase?.toUpperCase() || "NOUVELLE LUNE"}
@@ -623,9 +623,9 @@ export default function Home() {
           return (
             <div style={{
               padding: '16px',
-              background: moonData.illumination >= 95 ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.03)',
+              background: moonData.illumination >= 95 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.03)',
               borderRadius: '16px',
-              border: moonData.illumination >= 95 ? '1px solid rgba(255,215,0,0.2)' : '1px solid rgba(255,255,255,0.05)',
+              border: moonData.illumination >= 95 ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.05)',
               textAlign: 'center',
               marginTop: '20px'
             }}>
@@ -635,7 +635,7 @@ export default function Home() {
             </div>
           );
         })()}
-      </div>
-    </main>
+        </div>
+      </main>
   );
 }
