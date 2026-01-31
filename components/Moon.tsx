@@ -1,133 +1,128 @@
 "use client";
 
 interface MoonProps {
-  phase: number; // phase de 0 à 1
-  illumination: number; // illumination de 0 à 100
+  phaseValue: number; // 0 = nouvelle lune, 0.5 = pleine lune, 1 = nouvelle lune
+  illumination: number; // 0-100
 }
 
-export default function Moon({ phase, illumination }: MoonProps) {
-  // Protection contre les valeurs invalides
-  const safePhase = typeof phase === 'number' && !isNaN(phase) ? phase : 0;
-  const safeIllumination = typeof illumination === 'number' && !isNaN(illumination) ? Math.max(0, Math.min(100, illumination)) : 0;
+export default function Moon({ phaseValue, illumination }: MoonProps) {
+  const isFullMoon = illumination >= 95;
+  const isNewMoon = illumination <= 5;
   
-  // Calcul sécurisé pour l'ombre de phase
-  const shadowCoverage = 100 - safeIllumination;
-  const shadowStart = Math.max(0, Math.min(100, 100 - shadowCoverage - 20));
-  const shadowMid1 = Math.max(0, Math.min(100, 100 - shadowCoverage - 10));
-  const shadowEnd = Math.max(0, Math.min(100, 100 - shadowCoverage));
+  // Calculer quelle partie est illuminée
+  // phaseValue 0-0.5 : croissant à pleine (illuminé à droite puis tout)
+  // phaseValue 0.5-1 : pleine à nouvelle (ombre vient de droite)
+  
+  const brightness = Math.round(40 + (illumination * 0.6)); // 40-100% de luminosité
+  const glowIntensity = illumination / 100;
+  
+  // Position de l'ombre (pour simuler les phases)
+  // 0 = nouvelle lune (tout sombre), 0.5 = pleine (pas d'ombre), 1 = nouvelle
+  let shadowPosition: string;
+  let shadowOpacity: number;
+  
+  if (phaseValue <= 0.5) {
+    // Croissant vers pleine : ombre vient de la gauche et diminue
+    shadowPosition = 'left';
+    shadowOpacity = 1 - (phaseValue * 2); // 1 -> 0
+  } else {
+    // Pleine vers nouvelle : ombre vient de la droite et augmente
+    shadowPosition = 'right';
+    shadowOpacity = (phaseValue - 0.5) * 2; // 0 -> 1
+  }
 
   return (
-    <div className="relative flex flex-col items-center pt-8 pb-[50px]">
-      {/* Halo ambient */}
-      <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-[radial-gradient(circle,rgba(200,210,230,0.15),transparent)] blur-[40px] -z-10" />
+    <div style={{
+      position: 'relative',
+      width: '220px',
+      height: '220px',
+      margin: '0 auto',
+      animation: isFullMoon ? 'moonPulse 3s ease-in-out infinite' : 'none'
+    }}>
+      {/* Halo externe */}
+      <div style={{
+        position: 'absolute',
+        top: '-30px',
+        left: '-30px',
+        width: '280px',
+        height: '280px',
+        borderRadius: '50%',
+        background: isFullMoon 
+          ? 'radial-gradient(circle, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.03) 40%, transparent 70%)'
+          : `radial-gradient(circle, rgba(255,255,255,${0.1 * glowIntensity}) 0%, transparent 70%)`,
+        filter: isFullMoon ? 'blur(20px)' : 'blur(15px)',
+        animation: isFullMoon ? 'goldenGlow 2s ease-in-out infinite' : 'none'
+      }} />
       
-      {/* Moon ring container */}
-      <div 
-        className="moon-ring"
-        style={{
-          width: '260px',
-          height: '260px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'radial-gradient(circle, rgba(200,210,230,0.12) 0%, transparent 70%)',
-          boxShadow: 'inset 0 0 30px rgba(200,210,230,0.08)',
-        }}
-      >
-        {/* Lune réaliste avec rotation */}
-        <div 
-          className="moon-surface animate-moon-rotate"
-          style={{
-            width: '220px',
-            height: '220px',
-            borderRadius: '50%',
-            position: 'relative',
-            background: 'radial-gradient(ellipse 70% 60% at 30% 30%, #fafafa 0%, #e8e8e8 15%, #d0d0d0 35%, #b0b0b0 55%, #888888 75%, #707070 90%, #606060 100%)',
-            boxShadow: `
-              inset -35px -20px 60px rgba(0,0,0,0.6),
-              inset 20px 15px 50px rgba(255,255,255,0.12),
-              0 10px 40px rgba(0,0,0,0.4),
-              0 0 80px rgba(200,210,230,0.25),
-              0 0 120px rgba(200,210,230,0.1)
-            `,
-            overflow: 'hidden'
-          }}
-        >
-          {/* Cratère 1 - grand (réduit de 40px à 32px) */}
+      {/* Corps de la lune */}
+      <div style={{
+        position: 'relative',
+        width: '220px',
+        height: '220px',
+        borderRadius: '50%',
+        background: isFullMoon
+          ? 'radial-gradient(ellipse 70% 60% at 30% 30%, #fffef0 0%, #e8e4d4 30%, #c9c5b5 60%, #a8a598 100%)'
+          : `radial-gradient(ellipse 70% 60% at 30% 30%, 
+              rgb(${brightness + 20}, ${brightness + 18}, ${brightness + 10}) 0%, 
+              rgb(${brightness}, ${brightness - 5}, ${brightness - 10}) 30%, 
+              rgb(${brightness - 20}, ${brightness - 25}, ${brightness - 30}) 60%, 
+              rgb(${brightness - 40}, ${brightness - 45}, ${brightness - 50}) 100%)`,
+        boxShadow: isFullMoon
+          ? '0 0 50px 15px rgba(255,215,0,0.2), 0 0 80px 30px rgba(255,215,0,0.1), inset -20px -15px 40px rgba(0,0,0,0.1)'
+          : `0 0 ${40 * glowIntensity}px ${15 * glowIntensity}px rgba(255,255,255,${0.15 * glowIntensity}), 
+             inset -35px -20px 60px rgba(0,0,0,${0.3 + (1 - glowIntensity) * 0.4})`,
+        overflow: 'hidden'
+      }}>
+        {/* Ombre de phase */}
+        {!isFullMoon && !isNewMoon && shadowOpacity > 0.05 && (
           <div style={{
             position: 'absolute',
-            width: '32px',
-            height: '32px',
-            top: '22%',
-            left: '18%',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 35%, #b0b0b0 0%, #999999 60%, #888888 100%)',
-            boxShadow: 'inset -3px -3px 8px rgba(0,0,0,0.3), inset 2px 2px 4px rgba(255,255,255,0.15)'
+            top: 0,
+            [shadowPosition]: 0,
+            width: `${shadowOpacity * 100}%`,
+            height: '100%',
+            background: shadowPosition === 'left'
+              ? 'linear-gradient(to right, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.7) 60%, transparent 100%)'
+              : 'linear-gradient(to left, rgba(10,10,15,0.95) 0%, rgba(10,10,15,0.7) 60%, transparent 100%)',
+            borderRadius: '50%'
           }} />
-          
-          {/* Cratère 2 - moyen droite (réduit de 32px à 26px) */}
-          <div style={{
-            position: 'absolute',
-            width: '26px',
-            height: '26px',
-            top: '40%',
-            left: '58%',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 35%, #a8a8a8 0%, #999999 60%, #888888 100%)',
-            boxShadow: 'inset -2px -2px 6px rgba(0,0,0,0.3), inset 1px 1px 3px rgba(255,255,255,0.12)'
-          }} />
-          
-          {/* Cratère 3 - petit haut droite (réduit de 18px à 14px) */}
-          <div style={{
-            position: 'absolute',
-            width: '14px',
-            height: '14px',
-            top: '18%',
-            left: '55%',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 35%, #aaaaaa 0%, #999999 60%, #888888 100%)',
-            boxShadow: 'inset -1px -1px 4px rgba(0,0,0,0.25), inset 1px 1px 2px rgba(255,255,255,0.1)'
-          }} />
-          
-          {/* Cratère 4 - moyen bas (réduit de 28px à 22px) */}
-          <div style={{
-            position: 'absolute',
-            width: '22px',
-            height: '22px',
-            top: '62%',
-            left: '35%',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 35%, #a5a5a5 0%, #999999 60%, #888888 100%)',
-            boxShadow: 'inset -2px -2px 5px rgba(0,0,0,0.3), inset 1px 1px 2px rgba(255,255,255,0.1)'
-          }} />
-          
-          {/* Cratère 5 - petit bas droite (réduit de 15px à 12px) */}
-          <div style={{
-            position: 'absolute',
-            width: '12px',
-            height: '12px',
-            top: '70%',
-            left: '60%',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 35%, #a2a2a2 0%, #999999 60%, #888888 100%)',
-            boxShadow: 'inset -1px -1px 3px rgba(0,0,0,0.25), inset 1px 1px 2px rgba(255,255,255,0.08)'
-          }} />
-          
-          {/* Ombre de phase - couvre selon (100 - illumination)% depuis la gauche */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '50%',
-            background: `linear-gradient(90deg, 
-              rgba(8,8,15,0.95) 0%, 
-              rgba(8,8,15,0.8) ${shadowStart}%, 
-              rgba(8,8,15,0.4) ${shadowMid1}%,
-              transparent ${shadowEnd}%
-            )`,
-            pointerEvents: 'none'
-          }} />
-        </div>
+        )}
+        
+        {/* Cratères (visibles seulement si assez illuminé) */}
+        {illumination > 20 && (
+          <>
+            <div style={{
+              position: 'absolute',
+              top: '25%',
+              left: '30%',
+              width: '25px',
+              height: '25px',
+              borderRadius: '50%',
+              background: `radial-gradient(circle at 40% 40%, transparent 0%, rgba(0,0,0,${0.1 * glowIntensity}) 100%)`,
+              opacity: glowIntensity
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '55%',
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              background: `radial-gradient(circle at 40% 40%, transparent 0%, rgba(0,0,0,${0.08 * glowIntensity}) 100%)`,
+              opacity: glowIntensity
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: '65%',
+              left: '25%',
+              width: '30px',
+              height: '30px',
+              borderRadius: '50%',
+              background: `radial-gradient(circle at 40% 40%, transparent 0%, rgba(0,0,0,${0.12 * glowIntensity}) 100%)`,
+              opacity: glowIntensity
+            }} />
+          </>
+        )}
       </div>
     </div>
   );

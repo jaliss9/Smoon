@@ -399,38 +399,72 @@ export default function Home() {
   console.log('9.4 Rendu principal');
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] px-5 max-w-[430px] mx-auto" style={{ minHeight: '100dvh', paddingTop: '60px', paddingBottom: '40px', position: 'relative', zIndex: 1 }}>
-      {/* Fond étoilé */}
+      {/* Fond étoilé avec parallax et scintillement */}
       <div 
         aria-hidden="true"
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          top: 0, left: 0, right: 0, bottom: 0,
           pointerEvents: 'none',
           zIndex: 0,
-          backgroundImage: `
-            radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.7), transparent),
-            radial-gradient(2px 2px at 60px 80px, rgba(255,255,255,0.5), transparent),
-            radial-gradient(2px 2px at 100px 50px, rgba(255,255,255,0.6), transparent),
-            radial-gradient(1.5px 1.5px at 140px 120px, rgba(255,255,255,0.5), transparent),
-            radial-gradient(2px 2px at 180px 180px, rgba(255,255,255,0.7), transparent),
-            radial-gradient(1.5px 1.5px at 220px 70px, rgba(255,255,255,0.55), transparent),
-            radial-gradient(2px 2px at 260px 140px, rgba(255,255,255,0.6), transparent),
-            radial-gradient(2px 2px at 300px 200px, rgba(255,255,255,0.5), transparent),
-            radial-gradient(1.5px 1.5px at 340px 90px, rgba(255,255,255,0.65), transparent),
-            radial-gradient(2px 2px at 380px 160px, rgba(255,255,255,0.55), transparent),
-            radial-gradient(2px 2px at 50px 250px, rgba(255,255,255,0.6), transparent),
-            radial-gradient(1.5px 1.5px at 120px 300px, rgba(255,255,255,0.5), transparent),
-            radial-gradient(2px 2px at 200px 280px, rgba(255,255,255,0.7), transparent),
-            radial-gradient(2px 2px at 280px 320px, rgba(255,255,255,0.55), transparent),
-            radial-gradient(1.5px 1.5px at 350px 270px, rgba(255,255,255,0.6), transparent)
-          `,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '400px 350px'
+          animation: 'starFloat 60s ease-in-out infinite'
         }}
-      />
+      >
+        {/* Générer plusieurs étoiles avec scintillement - positions fixes pour éviter l'hydration */}
+        {[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29].map((i) => {
+          // Positions fixes basées sur l'index pour éviter les différences SSR/client
+          const positions = [
+            { top: 5, left: 10, size: 1.5, delay: 0.5, opacity: 0.6 },
+            { top: 15, left: 25, size: 2, delay: 1.2, opacity: 0.5 },
+            { top: 8, left: 45, size: 1.2, delay: 2.1, opacity: 0.7 },
+            { top: 22, left: 15, size: 1.8, delay: 0.8, opacity: 0.4 },
+            { top: 30, left: 60, size: 2.2, delay: 1.5, opacity: 0.6 },
+            { top: 12, left: 75, size: 1.3, delay: 2.8, opacity: 0.5 },
+            { top: 35, left: 30, size: 1.7, delay: 1.0, opacity: 0.7 },
+            { top: 18, left: 85, size: 2.1, delay: 0.3, opacity: 0.4 },
+            { top: 42, left: 50, size: 1.4, delay: 2.3, opacity: 0.6 },
+            { top: 25, left: 5, size: 1.9, delay: 1.7, opacity: 0.5 },
+            { top: 50, left: 20, size: 2.0, delay: 0.9, opacity: 0.7 },
+            { top: 38, left: 70, size: 1.6, delay: 2.5, opacity: 0.4 },
+            { top: 55, left: 40, size: 1.8, delay: 1.3, opacity: 0.6 },
+            { top: 28, left: 90, size: 1.5, delay: 0.7, opacity: 0.5 },
+            { top: 62, left: 12, size: 2.2, delay: 2.0, opacity: 0.7 },
+            { top: 45, left: 55, size: 1.3, delay: 1.4, opacity: 0.4 },
+            { top: 70, left: 35, size: 1.7, delay: 0.6, opacity: 0.6 },
+            { top: 58, left: 80, size: 1.9, delay: 2.2, opacity: 0.5 },
+            { top: 75, left: 18, size: 1.4, delay: 1.8, opacity: 0.7 },
+            { top: 65, left: 65, size: 2.1, delay: 0.4, opacity: 0.4 },
+            { top: 80, left: 42, size: 1.6, delay: 2.6, opacity: 0.6 },
+            { top: 72, left: 88, size: 1.8, delay: 1.1, opacity: 0.5 },
+            { top: 85, left: 25, size: 2.0, delay: 0.8, opacity: 0.7 },
+            { top: 78, left: 60, size: 1.5, delay: 2.4, opacity: 0.4 },
+            { top: 88, left: 8, size: 1.7, delay: 1.6, opacity: 0.6 },
+            { top: 82, left: 75, size: 1.9, delay: 0.3, opacity: 0.5 },
+            { top: 92, left: 50, size: 1.3, delay: 2.7, opacity: 0.7 },
+            { top: 86, left: 95, size: 2.2, delay: 1.9, opacity: 0.4 },
+            { top: 95, left: 30, size: 1.4, delay: 0.5, opacity: 0.6 },
+            { top: 90, left: 68, size: 1.8, delay: 2.1, opacity: 0.5 }
+          ];
+          const pos = positions[i] || { top: 50, left: 50, size: 1.5, delay: 1, opacity: 0.5 };
+          return (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                top: `${pos.top}%`,
+                left: `${pos.left}%`,
+                width: `${pos.size}px`,
+                height: `${pos.size}px`,
+                background: 'white',
+                borderRadius: '50%',
+                animation: `twinkle ${2 + (i % 3)}s ease-in-out infinite`,
+                animationDelay: `${pos.delay}s`,
+                opacity: pos.opacity
+              }}
+            />
+          );
+        })}
+      </div>
       
       {/* Header - Location uniquement */}
       <Header location={location?.name || "London, UK"} />
@@ -438,25 +472,74 @@ export default function Home() {
       {/* Lune */}
       <div style={{ marginBottom: '24px' }}>
         <Moon 
+          phaseValue={moonData?.phaseValue ?? 0}
           illumination={moonData?.illumination ?? 0} 
-          phase={moonData?.phaseValue ?? 0} 
         />
       </div>
 
-      {/* Phase Name */}
-      <div className="text-center" style={{ marginBottom: '16px' }} suppressHydrationWarning>
-        <h1 className="text-[28px] font-light tracking-[-0.5px] text-white" suppressHydrationWarning>
-          {moonData?.phase || "Nouvelle lune"}
-        </h1>
-      </div>
-
-      {/* Illumination */}
-      <div className="text-center" style={{ marginBottom: '80px' }} suppressHydrationWarning>
-        <span className="text-[56px] font-extralight tracking-[-3px] text-white" suppressHydrationWarning>
-          {moonData?.illumination ?? 0}
-        </span>
-        <span className="text-[24px] font-light text-white">%</span>
-        <p className="text-[13px] font-medium tracking-[1px] uppercase text-white/40 mt-1">ILLUMINATION</p>
+      {/* Card Glass pour Phase + Pourcentage avec Cercle */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '24px',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '24px',
+        border: '1px solid rgba(255,255,255,0.05)',
+        marginTop: '20px',
+        marginBottom: '80px',
+        marginLeft: '20px',
+        marginRight: '20px'
+      }}>
+        <div style={{ position: 'relative', width: '140px', height: '140px' }}>
+          <svg width="140" height="140" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
+            <circle
+              cx="70" cy="70" r="60" fill="none"
+              stroke={moonData.illumination >= 95 ? "url(#goldGradient)" : "url(#progressGradient)"}
+              strokeWidth="8" strokeLinecap="round"
+              strokeDasharray={`${(moonData.illumination / 100) * 377} 377`}
+              style={{ filter: moonData.illumination > 80 ? 'drop-shadow(0 0 10px rgba(255,255,255,0.5))' : 'none' }}
+            />
+            <defs>
+              <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#a78bfa" />
+                <stop offset="100%" stopColor="#f0abfc" />
+              </linearGradient>
+              <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#ffd700" />
+                <stop offset="100%" stopColor="#ffec80" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)', textAlign: 'center'
+          }}>
+            <span style={{
+              fontSize: '36px', fontWeight: '300', color: 'white',
+              animation: moonData.illumination > 80 ? 'glowPulse 2s ease-in-out infinite' : 'none'
+            }}>
+              {moonData?.illumination ?? 0}
+            </span>
+            <span style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)' }}>%</span>
+          </div>
+        </div>
+        
+        <div style={{
+          marginTop: '16px', padding: '8px 20px',
+          background: moonData.illumination >= 95 ? 'rgba(255,215,0,0.2)' : 'rgba(167,139,250,0.15)',
+          borderRadius: '20px',
+          border: moonData.illumination >= 95 ? '1px solid rgba(255,215,0,0.4)' : '1px solid rgba(167,139,250,0.3)'
+        }}>
+          <span style={{
+            fontSize: '14px',
+            color: moonData.illumination >= 95 ? 'rgba(255,235,180,1)' : 'rgba(255,255,255,0.9)',
+            letterSpacing: '1px'
+          }}>
+            {moonData?.phase?.toUpperCase() || "NOUVELLE LUNE"}
+          </span>
+        </div>
       </div>
 
       {/* CONTAINER GLASS */}
@@ -493,7 +576,7 @@ export default function Home() {
         {/* Cartes larges */}
         <StatCardWide 
           icon="distance" 
-          label="DISTANCE TERRE-LUNE" 
+          label="DISTANCE SMINA-LUNE" 
           value={(() => {
             try {
               const dist = moonData?.distance ?? 384400;
@@ -509,23 +592,49 @@ export default function Home() {
 
         <SminaCard value={moonData?.sminaValue ?? 5} />
 
-        {/* Carte de rappel */}
-        <div style={{
-          marginTop: '20px',
-          padding: '16px',
-          borderRadius: '16px',
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.05)',
-          textAlign: 'center'
-        }}>
-          <p style={{
-            fontSize: '13px',
-            color: 'rgba(255,255,255,0.5)',
-            margin: 0
-          }}>
-            Ouvre-moi ce soir pour voir la lune, Smina 🌙
-          </p>
-        </div>
+        {/* Message contextuel */}
+        {(() => {
+          function getContextualMessage(altitude: number, illumination: number): { text: string; emoji: string } {
+            const hour = new Date().getHours();
+            const isFullMoon = illumination >= 95;
+            
+            if (isFullMoon) {
+              return { text: "Iwa c'est la pleine lune, Smina !", emoji: "🌕✨" };
+            }
+            
+            const isNight = hour >= 21 || hour < 6;
+            const isEvening = hour >= 18 && hour < 21;
+            const isMorning = hour >= 6 && hour < 12;
+            
+            if (isNight && altitude > 0) {
+              return { text: "Chouf sma, Smina", emoji: "✨" };
+            } else if (isNight) {
+              return { text: "Lqmar kayrta7, Smina", emoji: "💤" };
+            } else if (isEvening) {
+              return { text: "Lqmar ghadi yetla3, Smina", emoji: "🌙" };
+            } else if (isMorning) {
+              return { text: "Nhar zine, Smina", emoji: "☀️" };
+            }
+            return { text: "Lqmar kayfekker fik, Smina", emoji: "💫" };
+          }
+          
+          const contextMessage = getContextualMessage(moonData?.altitude ?? 0, moonData?.illumination ?? 0);
+          
+          return (
+            <div style={{
+              padding: '16px',
+              background: moonData.illumination >= 95 ? 'rgba(255,215,0,0.08)' : 'rgba(255,255,255,0.03)',
+              borderRadius: '16px',
+              border: moonData.illumination >= 95 ? '1px solid rgba(255,215,0,0.2)' : '1px solid rgba(255,255,255,0.05)',
+              textAlign: 'center',
+              marginTop: '20px'
+            }}>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>
+                {contextMessage.text} {contextMessage.emoji}
+              </p>
+            </div>
+          );
+        })()}
       </div>
     </main>
   );

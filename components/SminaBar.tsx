@@ -12,11 +12,22 @@ export default function SminaBar({ value }: SminaBarProps) {
   return (
     <div className="relative">
       {/* Barre de progression */}
-      <div className="bg-[rgba(255,255,255,0.08)] rounded-full h-2 overflow-hidden">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-[rgba(180,160,220,0.6)] to-[rgba(220,200,255,0.9)] transition-all duration-300"
-          style={{ width: `${safeValue}%` }}
-        />
+      <div style={{
+        width: '100%',
+        height: '8px',
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '4px',
+        overflow: 'hidden',
+        position: 'relative'
+      }}>
+        <div style={{
+          width: `${safeValue}%`,
+          height: '100%',
+          background: 'linear-gradient(90deg, #a78bfa, #f0abfc, #a78bfa)',
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 3s linear infinite',
+          borderRadius: '4px'
+        }} />
       </div>
       
       {/* Étoile au-dessus de la barre avec glow animé */}
