@@ -1,23 +1,11 @@
-// Import de SunCalc - Next.js gère automatiquement le SSR
-import * as SunCalcModule from "suncalc";
+import SunCalc from 'suncalc';
 
 // Fonction pour obtenir SunCalc de manière sécurisée
-function getSunCalc(): any {
+function getSunCalc(): typeof SunCalc | null {
   if (typeof window === 'undefined') {
     return null;
   }
-  
-  try {
-    // SunCalc devrait être disponible côté client
-    const SunCalcLib = SunCalcModule.default || SunCalcModule;
-    if (SunCalcLib && typeof SunCalcLib.getMoonIllumination === 'function') {
-      return SunCalcLib;
-    }
-    return null;
-  } catch (e) {
-    console.error('Erreur getSunCalc:', e);
-    return null;
-  }
+  return SunCalc;
 }
 
 export interface MoonData {

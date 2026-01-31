@@ -22,4 +22,12 @@ declare module 'suncalc' {
   export function getMoonIllumination(date: Date): MoonIllumination;
   export function getMoonPosition(date: Date, lat: number, lng: number): MoonPosition;
   export function getMoonTimes(date: Date, lat: number, lng: number): MoonTimes;
+  
+  const SunCalc: {
+    getMoonIllumination: typeof getMoonIllumination;
+    getMoonPosition: typeof getMoonPosition;
+    getMoonTimes: typeof getMoonTimes;
+  };
+  
+  export default SunCalc;
 }
