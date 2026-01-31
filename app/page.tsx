@@ -29,6 +29,7 @@ const LONDON_FALLBACK: Location = {
 export default function Home() {
   console.log('1. Composant monté');
   
+  // Tous les hooks au même niveau, sans conditions
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -82,15 +83,22 @@ export default function Home() {
     }
   });
 
+  // useEffect séparé pour isMounted - doit être le premier
+  useEffect(() => {
+    console.log('2. useEffect isMounted');
+    setIsMounted(true);
+  }, []);
+
   // Demander la géolocalisation au chargement
   useEffect(() => {
-    console.log('2. useEffect démarré');
+    if (!isMounted) return; // Attendre que le composant soit monté
+    
+    console.log('3. useEffect init démarré');
     
     const init = async () => {
       try {
-        console.log('3. Début init');
+        console.log('4. Début init');
         
-        setIsMounted(true);
         setIsLoading(true);
 
         // Vérifier si localStorage est disponible
@@ -124,16 +132,16 @@ export default function Home() {
         }
 
         // Demander la géolocalisation - vérification stricte pour Safari
-        console.log('4. Avant géoloc');
+        console.log('5. Avant géoloc');
         if (typeof window !== 'undefined' && 
             typeof navigator !== 'undefined' && 
             'geolocation' in navigator && 
             navigator.geolocation) {
-          console.log('4.1 Géolocalisation disponible');
+          console.log('5.1 Géolocalisation disponible');
           navigator.geolocation.getCurrentPosition(
             async (position) => {
               try {
-                console.log('4.2 Position obtenue');
+                console.log('5.2 Position obtenue');
                 const { latitude, longitude } = position.coords;
                 
                 // Reverse geocoding pour obtenir le nom de la ville
@@ -177,9 +185,9 @@ export default function Home() {
                   console.warn("Erreur sauvegarde localStorage:", e);
                 }
                 
-                console.log('6. Avant calcul lune');
+                console.log('6. Avant calcul lune (géoloc)');
                 const data = calculateMoonData(newLocation.lat, newLocation.lon);
-                console.log('7. Après calcul lune', data);
+                console.log('7. Après calcul lune (géoloc)', data);
                 setMoonData(data);
                 try {
                   if (typeof checkAndNotifyHighIllumination === 'function') {
@@ -221,7 +229,7 @@ export default function Home() {
           );
         } else {
           // Pas de géolocalisation disponible, utiliser fallback
-          console.log('4.3 Géolocalisation non disponible, fallback');
+          console.log('5.3 Géolocalisation non disponible, fallback');
           console.warn("Géolocalisation non disponible, utilisation du fallback London");
           try {
             const fallbackCoords = { lat: 51.5074, lon: -0.1278 };
@@ -249,7 +257,7 @@ export default function Home() {
     };
     
     init();
-  }, []);
+  }, [isMounted]);
 
   // Rafraîchissement automatique toutes les 5 minutes
   useEffect(() => {
@@ -302,17 +310,8 @@ export default function Home() {
     }
   }, [isMounted, location, isLoading]);
 
-  if (!isMounted) {
-    return (
-      <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] flex items-center justify-center" style={{ minHeight: '100dvh' }}>
-        <div className="text-white text-center">
-          <p>Chargement...</p>
-        </div>
-      </main>
-    );
-  }
-
   // Protection contre les erreurs de données - vérification unique au montage
+  // IMPORTANT: Ce useEffect doit être AVANT tous les returns conditionnels pour respecter les règles des hooks
   useEffect(() => {
     if (!isMounted || isLoading) return;
     
@@ -341,6 +340,23 @@ export default function Home() {
       };
     }
   }, [isMounted, isLoading, moonData, location]);
+
+  // Retourner un placeholder avant le montage pour éviter l'erreur d'hydration
+  if (!isMounted) {
+    console.log('9.0 Pas encore monté, placeholder');
+    return (
+      <main style={{ 
+        minHeight: '100dvh', 
+        background: 'linear-gradient(to bottom, #0a0a0f, #0d1117, #161b22)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white'
+      }}>
+        <p>Chargement...</p>
+      </main>
+    );
+  }
 
   // Gestion des états d'erreur et de chargement
   console.log('9. Avant rendu - error:', error, 'isLoading:', isLoading, 'isMounted:', isMounted, 'moonData:', moonData);
