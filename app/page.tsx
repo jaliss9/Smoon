@@ -27,6 +27,8 @@ const LONDON_FALLBACK: Location = {
 };
 
 export default function Home() {
+  console.log('1. Composant monté');
+  
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -34,8 +36,10 @@ export default function Home() {
   
   // Initialisation sécurisée de moonData
   const [moonData, setMoonData] = useState<ReturnType<typeof calculateMoonData>>(() => {
+    console.log('1.1 Initialisation moonData');
     try {
       if (typeof window === 'undefined') {
+        console.log('1.2 Server-side, valeurs par défaut');
         // Server-side, retourner des valeurs par défaut
         return {
           phase: 'Nouvelle lune',
@@ -50,14 +54,19 @@ export default function Home() {
           altitude: 0,
         };
       }
+      console.log('1.3 Client-side, calcul moonData');
       const data = calculateMoonData(LONDON_FALLBACK.lat, LONDON_FALLBACK.lon);
+      console.log('1.4 moonData calculé:', data);
       // Vérifier que les données sont valides
       if (data && typeof data.illumination === 'number' && !isNaN(data.illumination)) {
+        console.log('1.5 moonData valide');
         return data;
       }
+      console.warn('1.6 moonData invalide');
       throw new Error('Invalid moonData returned');
     } catch (e) {
       console.error('Error initializing moonData:', e);
+      console.error('Stack:', e instanceof Error ? e.stack : 'No stack');
       return {
         phase: 'Nouvelle lune',
         phaseValue: 0,
@@ -75,13 +84,18 @@ export default function Home() {
 
   // Demander la géolocalisation au chargement
   useEffect(() => {
+    console.log('2. useEffect démarré');
+    
     const init = async () => {
       try {
+        console.log('3. Début init');
+        
         setIsMounted(true);
         setIsLoading(true);
 
         // Vérifier si localStorage est disponible
         if (typeof window !== 'undefined' && window.localStorage) {
+          console.log('3.1 localStorage disponible');
           try {
             // Vérifier si on a une position sauvegardée
             const savedLocation = localStorage.getItem("smoon_location");
@@ -110,13 +124,16 @@ export default function Home() {
         }
 
         // Demander la géolocalisation - vérification stricte pour Safari
+        console.log('4. Avant géoloc');
         if (typeof window !== 'undefined' && 
             typeof navigator !== 'undefined' && 
             'geolocation' in navigator && 
             navigator.geolocation) {
+          console.log('4.1 Géolocalisation disponible');
           navigator.geolocation.getCurrentPosition(
             async (position) => {
               try {
+                console.log('4.2 Position obtenue');
                 const { latitude, longitude } = position.coords;
                 
                 // Reverse geocoding pour obtenir le nom de la ville
@@ -160,7 +177,9 @@ export default function Home() {
                   console.warn("Erreur sauvegarde localStorage:", e);
                 }
                 
+                console.log('6. Avant calcul lune');
                 const data = calculateMoonData(newLocation.lat, newLocation.lon);
+                console.log('7. Après calcul lune', data);
                 setMoonData(data);
                 try {
                   if (typeof checkAndNotifyHighIllumination === 'function') {
@@ -202,6 +221,7 @@ export default function Home() {
           );
         } else {
           // Pas de géolocalisation disponible, utiliser fallback
+          console.log('4.3 Géolocalisation non disponible, fallback');
           console.warn("Géolocalisation non disponible, utilisation du fallback London");
           try {
             const fallbackCoords = { lat: 51.5074, lon: -0.1278 };
@@ -209,16 +229,20 @@ export default function Home() {
               localStorage.setItem('smoon_location', JSON.stringify(fallbackCoords));
             }
             setLocation(LONDON_FALLBACK);
+            console.log('6. Avant calcul lune (fallback)');
             const data = calculateMoonData(fallbackCoords.lat, fallbackCoords.lon);
+            console.log('7. Après calcul lune (fallback)', data);
             setMoonData(data);
           } catch (e) {
             console.error("Erreur lors du fallback:", e);
           }
         }
         
+        console.log('8. Init terminé');
         setIsLoading(false);
       } catch (e) {
-        console.error('Erreur initialisation:', e);
+        console.error('ERREUR initialisation:', e);
+        console.error('Stack:', e instanceof Error ? e.stack : 'No stack');
         setError('Erreur de chargement');
         setIsLoading(false);
       }
@@ -318,8 +342,23 @@ export default function Home() {
     }
   }, [isMounted, isLoading, moonData, location]);
 
-  // Protection finale avant le rendu
-  if (!moonData) {
+  // Gestion des états d'erreur et de chargement
+  console.log('9. Avant rendu - error:', error, 'isLoading:', isLoading, 'isMounted:', isMounted, 'moonData:', moonData);
+  
+  if (error) {
+    console.log('9.1 Affichage erreur');
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] flex items-center justify-center px-5" style={{ minHeight: '100dvh' }}>
+        <div className="text-white text-center max-w-[430px]">
+          <p className="text-lg mb-4">{error}</p>
+          <p className="text-sm text-white/60">Rechargez la page pour réessayer</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (isLoading || !isMounted) {
+    console.log('9.2 Affichage chargement');
     return (
       <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] flex items-center justify-center" style={{ minHeight: '100dvh' }}>
         <div className="text-white text-center">
@@ -329,6 +368,19 @@ export default function Home() {
     );
   }
 
+  // Protection finale avant le rendu
+  if (!moonData) {
+    console.log('9.3 moonData manquant');
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] flex items-center justify-center" style={{ minHeight: '100dvh' }}>
+        <div className="text-white text-center">
+          <p>Chargement...</p>
+        </div>
+      </main>
+    );
+  }
+
+  console.log('9.4 Rendu principal');
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0a0a0f] via-[#0d1117] to-[#161b22] px-5 max-w-[430px] mx-auto" style={{ minHeight: '100dvh', paddingTop: '60px', paddingBottom: '40px', position: 'relative', zIndex: 1 }}>
       {/* Fond étoilé */}

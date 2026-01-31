@@ -1,8 +1,23 @@
-import * as SunCalc from "suncalc";
+// Import de SunCalc - Next.js gère automatiquement le SSR
+import * as SunCalcModule from "suncalc";
 
-// Vérification que SunCalc est disponible
-if (typeof SunCalc === 'undefined') {
-  console.error('SunCalc is not available');
+// Fonction pour obtenir SunCalc de manière sécurisée
+function getSunCalc(): any {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
+  try {
+    // SunCalc devrait être disponible côté client
+    const SunCalcLib = SunCalcModule.default || SunCalcModule;
+    if (SunCalcLib && typeof SunCalcLib.getMoonIllumination === 'function') {
+      return SunCalcLib;
+    }
+    return null;
+  } catch (e) {
+    console.error('Erreur getSunCalc:', e);
+    return null;
+  }
 }
 
 export interface MoonData {
@@ -94,8 +109,9 @@ export function formatTime(date: Date | null): string {
  */
 export function calculateMoonData(lat: number, lon: number, date: Date = new Date()): MoonData {
   try {
-    // Vérifier que SunCalc est disponible
-    if (typeof SunCalc === 'undefined' || !SunCalc.getMoonIllumination) {
+    // Obtenir SunCalc de manière sécurisée
+    const SunCalcLib = getSunCalc();
+    if (!SunCalcLib || typeof SunCalcLib.getMoonIllumination !== 'function') {
       console.error('SunCalc is not available');
       throw new Error('SunCalc not available');
     }
@@ -115,7 +131,7 @@ export function calculateMoonData(lat: number, lon: number, date: Date = new Dat
     // Obtenir l'illumination de la lune
     let illumination: any;
     try {
-      illumination = SunCalc.getMoonIllumination(date);
+      illumination = SunCalcLib.getMoonIllumination(date);
     } catch (e) {
       console.error('Error getting moon illumination:', e);
       throw e;
@@ -127,7 +143,7 @@ export function calculateMoonData(lat: number, lon: number, date: Date = new Dat
     // Obtenir les heures de lever et coucher de la lune
     let moonTimes: any;
     try {
-      moonTimes = SunCalc.getMoonTimes(date, lat, lon);
+      moonTimes = SunCalcLib.getMoonTimes(date, lat, lon);
     } catch (e) {
       console.error('Error getting moon times:', e);
       moonTimes = {};
@@ -138,7 +154,7 @@ export function calculateMoonData(lat: number, lon: number, date: Date = new Dat
     // Obtenir la position de la lune (pour distance et altitude)
     let moonPosition: any;
     try {
-      moonPosition = SunCalc.getMoonPosition(date, lat, lon);
+      moonPosition = SunCalcLib.getMoonPosition(date, lat, lon);
     } catch (e) {
       console.error('Error getting moon position:', e);
       moonPosition = {};
